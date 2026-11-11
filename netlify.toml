@@ -1,0 +1,24 @@
+# Settings Netlify reads when it deploys the site. You shouldn't need to change this file.
+
+[build]
+  command = "node scripts/build.mjs"
+  publish = "public"
+
+[functions]
+  directory = "netlify/functions"
+  node_bundler = "esbuild"
+
+# Lets the chat button on a restaurant's own website read that restaurant's name and colour.
+[[headers]]
+  for = "/venues/*"
+  [headers.values]
+    Access-Control-Allow-Origin = "*"
+    Cache-Control = "public, max-age=300"
+
+# Keep these pages out of Google. They're a tool, not a marketing site.
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Robots-Tag = "noindex"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    X-Content-Type-Options = "nosniff"
