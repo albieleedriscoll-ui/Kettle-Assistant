@@ -31,8 +31,11 @@ No dependencies yet, so there is nothing to install.
 
 ```
 node scripts/build.mjs          # checks every restaurant file, writes the generated files
-node --test tests/*.test.mjs    # 35 tests, all must pass
+node --test tests/*.test.mjs    # 37 tests, all must pass
+node scripts/dev.mjs            # the whole site on this computer, to look at a change before deploying
 ```
+
+`scripts/dev.mjs` serves http://localhost:8788 with a stand-in for Claude (canned answers, no key) and throws enquiry forms away. It shows how the pages look and behave. It does not show how the real Claude answers.
 
 Run both before every push. Node 22.
 
@@ -52,8 +55,9 @@ A deploy that fails the checks in `scripts/build.mjs` costs nothing and leaves t
 |---|---|
 | `venues/<id>.mjs` | One file per restaurant: name, phone, booking link, colour, greeting, information sheet. The file name is the restaurant's ID. `_template.mjs` is copied for new ones. |
 | `scripts/build.mjs` | Runs on every deploy. Validates each venue file with `checkVenue` and exits 1 with plain-English messages if any is wrong. Writes the generated files. |
+| `scripts/dev.mjs` | Not deployed. Runs the site on your own computer for looking at changes. |
 | `netlify/functions/chat.mjs` | `POST /api/chat`. Same-site check, input limits, safety check 1, Claude, safety check 2. |
-| `netlify/functions/check.mjs` | `GET /api/check`. Health check page in plain English. |
+| `netlify/functions/check.mjs` | `GET /api/check`. Health check page in plain English, with each restaurant's links and the one line for their website. |
 | `lib/prompt.mjs` | The instructions Claude is given, built from the venue file. |
 | `lib/guard.mjs` | The safety checks, in ordinary code. |
 | `lib/claude.mjs` | The API call. Model `claude-haiku-5-5`, plain `fetch`, no SDK. |
