@@ -19,10 +19,18 @@ test("guest questions are sorted into the right route", () => {
     "I'm lactose intolerant": "allergy",
     "Any traces of peanuts in the desserts?": "allergy",
     "ALLERGIES?": "allergy",
+    // Misspellings still count (found by the stress test, 12 Nov 2026)
+    "My son has a peanut alergy, is the kids menu ok for him?": "allergy",
+    "she is alergic to something, not sure what": "allergy",
+    "I'm lactose intolerent": "allergy",
     // Possible reaction
     "My son is having a reaction after eating at yours": "emergency",
     "she used her epipen at your restaurant last night": "emergency",
     "I think I'm going into anaphylaxis": "emergency",
+    // A reaction described without the word "reaction" (found by the stress test, 12 Nov 2026)
+    "I ate there an hour ago and now my lips are swelling": "emergency",
+    "my tongue has swollen since the starter": "emergency",
+    "His face is swelling up": "emergency",
     // Complaints
     "I want to complain about last night": "complaint",
     "We got food poisoning": "complaint",
