@@ -2,7 +2,7 @@
 
 Last updated: 12 November 2026, by a Claude Code session running on Albie's Mac (not a cloud session).
 
-## Current stage: 1, go live. The code is right on GitHub. The hosting is not sorted, so no guest can use it yet.
+## Current stage: 1, go live. The site is public. The one thing stopping real answers is the key saved in Netlify, which Claude rejects.
 
 - GitHub repository: https://github.com/albieleedriscoll-ui/Kettle-Assistant (public). `main` has the right folder layout and the key fix (pull request 1, merged 12 November).
 - Restaurants live: none (only the demo, `copper-kettle`).
@@ -12,21 +12,21 @@ Last updated: 12 November 2026, by a Claude Code session running on Albie's Mac 
 
 | Project | What it is | State on 12 November |
 |---|---|---|
-| `lucent-taiyaki-cc7d40` | Linked to the GitHub repository. Merging to `main` publishes to it (15 credits each time). | Built and published pull request 1, but the project is **private**: every page shows "This site is private. Sign in with an invited Netlify account". Guests cannot see it. It has **no API key**. |
+| `lucent-taiyaki-cc7d40` | Linked to the GitHub repository. Merging to `main` publishes to it (15 credits each time). | **Public since 12 November** (Albie changed the setting): https://lucent-taiyaki-cc7d40.netlify.app. It runs pull request 1's code. It **has a key saved, but Claude rejects it**: the health check says `invalid x-api-key`. Netlify's badge sits on top of the chat button on a phone. |
 | `deluxe-creponne-e1f060` | Albie uploaded the folder to it by hand. Not updated by merging. | Public, and has an API key, but still runs the **old code** with the key bug, so Claude answers "Invalid bearer token". |
 
-- Albie chose `lucent-taiyaki-cc7d40` as the real site, then said he would like to **start again with a fresh repository and a fresh Netlify project**. That is his call and is not decided. Claude's advice: the repository is fine now and does not need replacing. On Netlify the cheap fix is to make `lucent-taiyaki-cc7d40` public and add the key, then delete `deluxe-creponne-e1f060`. A brand-new project works too but its first deploy costs another 15 credits.
+- **Decided 12 November: keep `lucent-taiyaki-cc7d40` and fix it**, rather than start again. `deluxe-creponne-e1f060` is to be deleted once the other one works.
 - Whatever he chooses: exactly one Netlify project should be linked to the repository, or every merge costs 30 credits.
 - Netlify settings a session cannot change, all free, all Albie's to click (menu names from Netlify's help pages, not seen on his screen):
   - Make a project public: Project configuration, General, Visitor access, Project visibility. New projects start private.
   - Remove the "Powered by Netlify" badge, which sits on top of the chat button on a phone: Project configuration, General, Powered by Netlify badge.
   - API key: Project configuration, Environment variables, Add a variable. Name `ANTHROPIC_API_KEY`. It takes effect at the next deploy.
   - Form detection: Forms, Enable form detection. It takes effect at the next deploy.
-- Netlify's preview links for pull requests are private too. Claude cannot open them. Albie can, where he is logged in to Netlify.
+- Netlify's preview links for pull requests are public as well now, so a session on this Mac can open them. **Previews are free, so test there before merging**: push to the pull request's branch, wait for Netlify to build it, then open `https://deploy-preview-<number>--lucent-taiyaki-cc7d40.netlify.app/api/check`. A change to the key in Netlify only shows up after a new build.
 
 ### The key bug (fixed in the code, not yet proved live)
 
-The first version sent the key as `Authorization: Bearer <key>`. A Claude API key goes in an `x-api-key` header. Fixed in pull request 1. With a made-up key, Claude now answers `invalid x-api-key` instead of `Invalid bearer token`, so it is reading the key from the right place. **Not proved until a public project has both the new code and Albie's real key**, and `/api/check` says "All working".
+The first version sent the key as `Authorization: Bearer <key>`. A Claude API key goes in an `x-api-key` header. Fixed in pull request 1. With a made-up key, Claude now answers `invalid x-api-key` instead of `Invalid bearer token`, so it is reading the key from the right place. **Proved live on 12 November as far as it can be without a good key**: `lucent-taiyaki-cc7d40` now answers `invalid x-api-key`. So the code is right and the value saved in Netlify is not a key Claude accepts. Likely causes: not the whole key, quotes or other characters around it, a key from another service, or a key that was deleted in the Claude Console. The fix is Albie's: make a new key in the Claude Console and replace the value in Netlify.
 
 **The key never goes in the chat, in a file, or on this Mac.** Albie offered it on 12 November to help with the build. It was not needed and was not taken. It lives only in Netlify.
 
@@ -34,7 +34,7 @@ The first version sent the key as `Authorization: Bearer <key>`. A Claude API ke
 
 | Check | Result on 12 November |
 |---|---|
-| 1. `/api/check` says "All working" | **No**, on either project (see the table above). |
+| 1. `/api/check` says "All working" | **No.** On `lucent-taiyaki-cc7d40` it says the key is not accepted (`invalid x-api-key`). |
 | 2. The five demo questions | **Not possible yet.** No real Claude answers. |
 | 3. A test enquiry arrives by email | **Not tested.** Not known whether form detection or the email notification is set on either project. |
 | 4. `/embed-demo.html` shows the chat button | On `deluxe-creponne-e1f060` the page loads, with Netlify's badge on top of the button on a phone. |
@@ -51,7 +51,7 @@ Albie asked on 12 November for the product to look "cleaner and more professiona
 - Health check page: a clear status at the top, and for each restaurant the links to its chat page and stand-in page plus the one line for its website.
 - New: `node scripts/dev.mjs` runs the whole site on this Mac at http://localhost:8788 with a stand-in for Claude, so a change can be looked at without deploying.
 
-Checked: build clean, 37 tests pass (35 before, plus 2 new ones for the health check page), and every screen looked at in a browser at phone size (375 and 320 wide) and desktop size on the local preview, including sending a test enquiry form (thrown away locally). **Not checked:** real Claude answers, a real enquiry email, a real phone, or the result on Netlify.
+Checked: build clean, 37 tests pass (35 before, plus 2 new ones for the health check page), and every screen looked at in a browser at phone size (375 and 320 wide) and desktop size on the local preview, including sending a test enquiry form (thrown away locally). Also seen on Netlify's own preview of the pull request at phone size: the new stand-in page and health check load correctly. **Not checked:** real Claude answers, a real enquiry email, or a real phone.
 
 Albie said "dashboard". Claude took that to mean the screens an owner and a guest see. If he meant something else, such as a page of numbers for owners, that is Stage 5 in the plan and has not been started.
 
@@ -66,8 +66,8 @@ Albie said "dashboard". Claude took that to mean the screens an owner and a gues
 
 ## Waiting on Albie
 
-1. Look at the new design on the local preview and say whether it is what he meant. Then merge or ask for changes.
-2. Decide the hosting: fix `lucent-taiyaki-cc7d40` (make it public, add the key) or start a fresh Netlify project. Either way, do the Netlify settings above **before** the next merge so one deploy picks them all up.
+1. He has seen the new design and said it is right (12 November). Pull request 2 is ready, but **don't merge until the key is proved on the free preview**.
+2. Replace the key saved in `lucent-taiyaki-cc7d40` with a new one from the Claude Console. Then Claude rebuilds the preview and checks it. After that: switch on form detection, switch off the Netlify badge, merge pull request 2, set the form's email notification, send a test enquiry, delete `deluxe-creponne-e1f060`.
 3. Decide whether the GitHub repository should stay public. Anyone can read it today, including the plan and prices in `docs/PLAN.md`. There are no keys in it.
 4. Twilio: open an account, upgrade it to paid, and submit the UK number registration (Phone Numbers, Regulatory Compliance, Bundles: United Kingdom, Mobile, Individual, with ID and proof of address). Not started as of 11 November. Approval time is unknown.
 5. The decisions listed in `docs/PLAN.md`.
