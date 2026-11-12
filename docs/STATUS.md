@@ -4,12 +4,16 @@ Last updated: 12 November 2026, by a Claude Code session running on Albie's Mac 
 
 ## Current stage: 1, go live. The site is up. Claude's answers are blocked by a bug in the code.
 
-- Netlify address: https://deluxe-creponne-e1f060.netlify.app
+- Netlify address in use today: https://deluxe-creponne-e1f060.netlify.app
 - GitHub repository: https://github.com/albieleedriscoll-ui/Kettle-Assistant (public)
 - Restaurants live: none (only the demo, `copper-kettle`)
-- Albie got it live by uploading the project folder straight to Netlify. Whether the Netlify site is linked to the GitHub repository is **not known**.
+- **Netlify has two projects, and only one should be kept.** Found on 12 November:
+  - `deluxe-creponne-e1f060`: Albie uploaded the folder to it by hand. It is the live site above and has an API key set. Merging on GitHub does **not** update it.
+  - `lucent-taiyaki-cc7d40`: linked to the GitHub repository (it is the one from Albie's first try). It has no live site yet, because its earlier builds failed: https://lucent-taiyaki-cc7d40.netlify.app says "Site not found". It built the preview for pull request 1 successfully. Merging on GitHub publishes to this one, at 15 credits a time. Not known: whether it has an API key or form detection.
+  - If both were ever linked to the repository, every merge would cost 30 credits. Keep exactly one linked.
+- Netlify's preview links for `lucent-taiyaki-cc7d40` are private ("This site is private. Sign in with an invited Netlify account"). Claude cannot open them. Albie can, in a browser where he is logged in to Netlify.
 
-### The four Stage 1 checks, as seen on the live site on 12 November
+### The four Stage 1 checks, as seen on the live site (`deluxe-creponne-e1f060`) on 12 November
 
 | Check | Result |
 |---|---|
@@ -44,13 +48,13 @@ The fix, **not made yet**: change that one header in `lib/claude.mjs`, change th
 ### Agreed order of work (Albie's, 12 November)
 
 1. One pull request that puts the GitHub repository back into folders. **Open, waiting for Albie to merge** (branch `tidy/restore-folders`). Proposed, not yet agreed: add the bug fix above to the same pull request, so one deploy covers both.
-2. Check that Netlify is linked to the repository, and link it if not. **Don't link until that pull request is merged**, or Netlify will try to build the untidy copy.
+2. Check that Netlify is linked to the repository. **Checked: it is, but through `lucent-taiyaki-cc7d40`, not the project Albie has been using.** He needs to choose which project to keep. Claude's recommendation: keep `lucent-taiyaki-cc7d40`, add the API key to it, and delete `deluxe-creponne-e1f060` afterwards. Still to prove: that a merge reaches the live site.
 3. Look at the whole thing as an owner would on a phone and give Albie five ranked improvements. He chooses. Don't build them all.
 
 ## Waiting on Albie
 
-1. Say whether the key bug fix should go into the tidy-up pull request, then merge that pull request on GitHub.
-2. In Netlify, look at Project configuration, Developer settings, Continuous deployment, Repository, and say whether it shows a "Link repository" button or a repository name. If it is not linked, link it only after the pull request is merged.
+1. Choose which Netlify project to keep, and say whether the key bug fix should go into pull request 1 (https://github.com/albieleedriscoll-ui/Kettle-Assistant/pull/1). Don't merge until that is settled: a merge publishes to `lucent-taiyaki-cc7d40` and costs 15 credits.
+2. Decide whether the GitHub repository should stay public. Anyone can read it today, including the plan and prices in `docs/PLAN.md`. There are no keys in it.
 3. Still to finish from the setup guide (https://claude.ai/artifact/UpUmYHw848kRPFovfqWHEH): form detection and the email notification, unless already done.
 4. Twilio: open an account, upgrade it to paid, and submit the UK number registration (Phone Numbers, Regulatory Compliance, Bundles: United Kingdom, Mobile, Individual, with ID and proof of address). Not started as of 11 November. Approval time is unknown.
 5. The decisions listed in `docs/PLAN.md`.
@@ -82,5 +86,5 @@ The Console menu names in steps 3 and 4 were written from memory and not checked
 
 Add a dated entry at the top for each session: what changed, what was tested, what is waiting.
 
-- **12 Nov 2026.** Session on Albie's Mac. No code changed. Looked at the live site in a browser at phone size and found why Claude isn't answering (the key is sent in the wrong header). Confirmed the Desktop folder has the right layout. Later the same day, with Albie's agreement, installed Node 22 and GitHub's command-line tool in `~/kettle-tools`, then ran the build and the 35 tests on a copy of the Desktop folder: all passed. Albie approved the GitHub sign-in. Found the repository held the project twice (loose files, plus a laid-out copy inside a `kettle-assistant/` folder), connected the Desktop folder to it, and opened the tidy-up pull request from `tidy/restore-folders`. Build and 35 tests passed on that branch. Not tested: real Claude answers, the enquiry form and its email, and whether a merge reaches the live site.
+- **12 Nov 2026.** Session on Albie's Mac. No code changed. Looked at the live site in a browser at phone size and found why Claude isn't answering (the key is sent in the wrong header). Confirmed the Desktop folder has the right layout. Later the same day, with Albie's agreement, installed Node 22 and GitHub's command-line tool in `~/kettle-tools`, then ran the build and the 35 tests on a copy of the Desktop folder: all passed. Albie approved the GitHub sign-in. Found the repository held the project twice (loose files, plus a laid-out copy inside a `kettle-assistant/` folder), connected the Desktop folder to it, and opened the tidy-up pull request from `tidy/restore-folders`. Build and 35 tests passed on that branch. Netlify built the pull request's preview successfully, which showed that the repository is linked to a second Netlify project, `lucent-taiyaki-cc7d40`. Not tested: real Claude answers, the enquiry form and its email, the preview itself (it is private), and whether a merge reaches the live site.
 - **11 Nov 2026.** First version built: chat endpoint, safety checks, venue files with deploy-time validation, chat page, website widget, health check. 35 unit tests, a clean `netlify build`, and 12 browser checks in Netlify's local runtime with a stand-in for Claude. Not tested: real Claude answers, real Netlify Forms emails. Found that the earlier "live demo" was a scripted Claude artifact, not a hosted product, so this is the first real one.
