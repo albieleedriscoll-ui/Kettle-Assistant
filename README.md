@@ -12,6 +12,7 @@ Setup guide (step by step): https://claude.ai/artifact/UpUmYHw848kRPFovfqWHEH
 | `public/index.html` | The chat page guests see. | No |
 | `public/widget.js` | The chat button a restaurant adds to its own website. | No |
 | `public/embed-demo.html` | A stand-in restaurant homepage, to show owners the button. | No |
+| `public/stress.html` | The stress test. Open `/stress.html?venue=ID` and click Run before a restaurant goes live. | No |
 | `netlify/functions/chat.mjs` | Answers each guest message. | No |
 | `netlify/functions/check.mjs` | The health check page at `/api/check`. | No |
 | `lib/prompt.mjs` | The instructions Claude is given. | No |
