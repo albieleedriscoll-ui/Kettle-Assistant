@@ -2,7 +2,7 @@
 
 Last updated: 12 November 2026, by a Claude Code session running on Albie's Mac (not a cloud session).
 
-## Current stage: 1, go live. The live site works and gives real answers. Left to prove: an enquiry reaching Albie's email.
+## Current stage: 2, stress test. Not started. Stage 1 (go live) was finished on 12 November 2026.
 
 - **Live address: https://lucent-taiyaki-cc7d40.netlify.app** Pull request 2 was merged at 7:05pm on 12 November. `/api/check` there says "All working", a real question got a correct answer, and Netlify has picked up the enquiry form (the live `forms.html` shows Netlify's own changes to it). The "Powered by Netlify" badge is still on top of the chat button on a phone; switching it off needs no deploy.
 - This file is ahead of `main`: it is on the branch `next/after-go-live`, with no pull request, so the update costs no credits. Put the next piece of work on that branch and merge them together.
@@ -50,7 +50,7 @@ The first version sent the key as `Authorization: Bearer <key>`. A Claude API ke
 |---|---|
 | 1. `/api/check` says "All working" | **Yes, on the live address.** |
 | 2. The five demo questions | **Pass on the preview** of the same code (see the list near the top). One repeated on the live address. |
-| 3. A test enquiry arrives by email | **Not tested.** Form detection is on. The email notification is not known to be set. |
+| 3. A test enquiry arrives by email | **Yes.** Albie sent himself a test enquiry from the live chat on 12 November and says the email arrived. Claude did not see the email. |
 | 4. `/embed-demo.html` shows the chat button | On `deluxe-creponne-e1f060` the page loads, with Netlify's badge on top of the button on a phone. |
 
 Seen for real on `deluxe-creponne-e1f060` (old code) at phone size: the chat page loads, `POST /api/chat` returns 200 so the same-site check accepts real requests, an ordinary question gets the "having trouble" reply with the phone number and the staff form, and an allergy question gets the fixed reply and the form.
@@ -80,7 +80,7 @@ Albie said "dashboard". Claude took that to mean the screens an owner and a gues
 
 ## Waiting on Albie
 
-1. Set the enquiry form's email notification (Forms, Submission notifications, Add notification), send himself a test enquiry from the chat, and say whether the email arrived.
+1. Nothing for Stage 2 yet: Claude builds the stress-test page first (see `docs/PLAN.md`).
 2. Switch off the badge (Project configuration, General, Powered by Netlify badge), then delete the `deluxe-creponne-e1f060` project. Then Claude rebuilds the preview and checks it. After that: switch on form detection, switch off the Netlify badge, merge pull request 2, set the form's email notification, send a test enquiry, delete `deluxe-creponne-e1f060`.
 3. Decide whether the GitHub repository should stay public. Anyone can read it today, including the plan and prices in `docs/PLAN.md`. There are no keys in it.
 4. Twilio: open an account, upgrade it to paid, and submit the UK number registration (Phone Numbers, Regulatory Compliance, Bundles: United Kingdom, Mobile, Individual, with ID and proof of address). Not started as of 11 November. Approval time is unknown.
@@ -114,6 +114,7 @@ The Console menu names in steps 3 and 4 were written from memory and not checked
 
 Add a dated entry at the top for each session: what changed, what was tested, what is waiting.
 
+- **12 Nov 2026, later still.** Albie set the email notification and confirmed a test enquiry arrived. All four Stage 1 checks now pass.
 - **12 Nov 2026, 7:05pm.** Albie merged pull request 2. Live address checked: health check "All working", one real answer correct, enquiry form detected by Netlify, badge still showing. Not tested: the enquiry email, a real phone.
 - **12 Nov 2026, 7pm.** Albie added his own key to the right project. Rebuilt the free preview: health check says "All working", and seven questions asked of the real Claude all behaved correctly. Not tested: the enquiry form and its email, a real phone, the live address (waiting on the merge).
 - **12 Nov 2026, evening.** Albie bought API credits, made a key and added it in Netlify. Rebuilt the free preview twice; Claude still rejects the key. Added a line to the health check that describes the saved value without showing it, which showed the value is Netlify's AI Gateway token, not Albie's key. 37 tests pass. Pull request 2 still open, not merged.
