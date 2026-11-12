@@ -51,5 +51,7 @@ test("when Claude rejects the key, the page says what to fix and never shows the
   assert.match(html, /Problem: Claude/);
   assert.match(html, /Claude didn't accept the API key/);
   assert.match(html, /invalid x-api-key/);
+  // It describes the saved value (length, and whether it looks like a Claude key) without showing it.
+  assert.match(html, /20 characters long and does not start with sk-ant-/);
   assert.equal(html.includes("test-key-never-shown"), false);
 });

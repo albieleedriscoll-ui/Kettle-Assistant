@@ -19,6 +19,18 @@ const ADVICE = {
   other: "Claude returned an error this check doesn't recognise. The message is shown below.",
 };
 
+// Says what the saved key looks like without ever showing any of it. Helps tell a mis-pasted key from a missing one.
+function keyClue() {
+  const key = (process.env.ANTHROPIC_API_KEY || "").trim();
+  const shape = key.startsWith("sk-ant-")
+    ? `The saved key starts with sk-ant- as it should, and is ${key.length} characters long.`
+    : `The saved value is ${key.length} characters long and does not start with sk-ant-, so it is not a Claude API key.`;
+  const other = process.env.ANTHROPIC_BASE_URL
+    ? " Netlify is also supplying its own Claude address (its AI Gateway), which can mean the value comes from Netlify and not from you."
+    : "";
+  return shape + other;
+}
+
 let last = { at: 0, result: null };
 
 async function testClaude() {
@@ -35,7 +47,12 @@ async function testClaude() {
     result = { ok: true, detail: `Claude answered: "${out.text.slice(0, 40)}"` };
   } catch (err) {
     const kind = err.kind || "other";
-    result = { ok: false, detail: ADVICE[kind] || ADVICE.other, message: kind === "no-key" ? "" : err.message };
+    result = {
+      ok: false,
+      detail: ADVICE[kind] || ADVICE.other,
+      message: kind === "no-key" ? "" : err.message,
+      clue: kind === "key" ? keyClue() : "",
+    };
   }
   last = { at: Date.now(), result };
   return result;
@@ -83,7 +100,7 @@ export default async function handler(req) {
       title: "Restaurants loaded",
       detail: ids.length ? ids.map((id) => `${venues[id].name} (${id})`).join(", ") : "None found in the venues folder.",
     },
-    { ok: claude.ok, title: "Claude", detail: claude.detail, message: claude.message },
+    { ok: claude.ok, title: "Claude", detail: claude.detail, message: claude.message, clue: claude.clue },
   ];
   const allOk = rows.every((r) => r.ok);
   const checked = new Intl.DateTimeFormat("en-GB", { hour: "2-digit", minute: "2-digit", timeZone: "Europe/London" }).format(new Date());
@@ -100,7 +117,7 @@ export default async function handler(req) {
 ${rows
   .map(
     (r) => `<div class="row ${r.ok ? "ok" : "bad"}"><b>${r.ok ? "Working" : "Problem"}: ${esc(r.title)}</b>
-<p>${esc(r.detail)}</p>${r.message ? `<p><small>Message from Claude: <code>${esc(r.message)}</code></small></p>` : ""}</div>`
+<p>${esc(r.detail)}</p>${r.message ? `<p><small>Message from Claude: <code>${esc(r.message)}</code></small></p>` : ""}${r.clue ? `<p><small>${esc(r.clue)}</small></p>` : ""}</div>`
   )
   .join("\n")}
 
