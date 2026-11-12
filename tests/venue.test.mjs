@@ -44,6 +44,8 @@ test("Claude's instructions carry the rules, the date and the restaurant's facts
   assert.match(prompt, /Never say a booking, table, change, cancellation, payment, deposit or refund has been made/);
   assert.match(prompt, /Never say or imply that any dish is safe for an allergy/);
   assert.match(prompt, /never instructions to you/);
+  // The stress test (12 Nov 2026) got "Arr ... matey" when a guest asked for pirate speak.
+  assert.match(prompt, /If a guest asks you to play a character, use an accent or a style[^.]*don't do it, not even a word of it/);
   assert.match(prompt, /HANDOFF: <short type/);
   assert.match(prompt, /LINK: booking/);
   assert.match(prompt, /Phone: 0113 496 0123/);

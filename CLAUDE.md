@@ -65,6 +65,7 @@ A deploy that fails the checks in `scripts/build.mjs` costs nothing and leaves t
 | `public/index.html` | The chat page, `/?venue=<id>`. With `&embed=1` it fills the widget's pop-up. |
 | `public/widget.js` | One script tag on a restaurant's site adds a button and opens the chat page in an iframe. |
 | `public/embed-demo.html` | A stand-in restaurant homepage for showing owners the button. |
+| `public/stress.html` | The stress test, `/stress.html?venue=<id>`. Albie runs it in his browser before a restaurant goes live. It asks the real assistant awkward questions and marks each answer with fixed rules. When a real failure turns up, fix `lib/prompt.mjs` or `lib/guard.mjs` with a unit test, and add the question to the page. |
 | `drafts/` | Not deployed. The tested call-test function from the first Twilio experiment, kept as a starting point. |
 
 **Generated on every deploy. Never edit by hand:** `venues/_index.mjs`, `public/forms.html`, `public/venues/*.json`. If you add a field the browser needs, add it to `publicView`.

@@ -2,69 +2,33 @@
 
 Last updated: 12 November 2026, by a Claude Code session running on Albie's Mac (not a cloud session).
 
-## Current stage: 1, go live. Real Claude answers work on the free preview of pull request 2. The live site needs that pull request merged to catch up.
+## Current stage: 2, stress test. Built and passing once on the preview. Waiting for Albie's second run and the merge.
 
-- GitHub repository: https://github.com/albieleedriscoll-ui/Kettle-Assistant (public). `main` has the right folder layout and the key fix (pull request 1, merged 12 November).
+- **Live address: https://kettleandco.netlify.app** (Albie renamed the Netlify project from `lucent-taiyaki-cc7d40` on 12 November; the old address no longer works). `/api/check` says "All working". The Netlify badge is off.
+- Netlify project: `kettleandco`, linked to the GitHub repository, public, with Albie's own `ANTHROPIC_API_KEY`, form detection on and an email notification set. The old hand-uploaded project `deluxe-creponne-e1f060` is gone.
+- Preview links are public and free: `https://deploy-preview-<number>--kettleandco.netlify.app`. Test there before every merge. A merge costs 15 credits.
+- GitHub repository: https://github.com/albieleedriscoll-ui/Kettle-Assistant (public; no keys in it; `docs/PLAN.md` with the prices is readable by anyone).
 - Restaurants live: none (only the demo, `copper-kettle`).
-- **Real answers seen for the first time on 12 November, 7pm**, on https://deploy-preview-2--lucent-taiyaki-cc7d40.netlify.app after Albie added his own key to `lucent-taiyaki-cc7d40`. `/api/check` there says "All working". The live address still runs the build from before the key was added, so it stays broken until the next merge.
-- Asked on that preview, each as a fresh conversation, all behaving as the plan expects:
-  - Last table on Saturday: 9:15pm, with the booking button.
-  - Gluten-free: general information, no promise, phone number, and an urgent form for the team.
-  - 12 people on 12 December: team confirms groups of 9 or more, with the group booking form.
-  - Parking: no car park, pay-and-display nearby, free after 6pm.
-  - "Book me a table for 2 tonight": says it can't make bookings, with the booking button.
-  - A nut allergy question: the fixed allergy reply and the urgent form.
-  - "So my table is booked for 7pm then?": says it can't see or confirm bookings and passes it to the team.
-- This is seven questions, once each. It is not the Stage 2 stress test.
 
-### Netlify: two projects, neither usable as it stands
+### Stage 1, go live: finished 12 November
 
-| Project | What it is | State on 12 November |
-|---|---|---|
-| `lucent-taiyaki-cc7d40` | Linked to the GitHub repository. Merging to `main` publishes to it (15 credits each time). | **Public since 12 November** (Albie changed the setting): https://lucent-taiyaki-cc7d40.netlify.app. It runs pull request 1's code. It **has a key saved, but Claude rejects it**: the health check says `invalid x-api-key`. Netlify's badge sits on top of the chat button on a phone. |
-| `deluxe-creponne-e1f060` | Albie uploaded the folder to it by hand. Not updated by merging. | Public, and has an API key, but still runs the **old code** with the key bug, so Claude answers "Invalid bearer token". |
+All four checks pass on the live site: health check, the five demo questions, a test enquiry reaching Albie's email (his word; Claude did not see the email), and the chat button on the stand-in page. Two lessons worth keeping:
 
-- **Decided 12 November: keep `lucent-taiyaki-cc7d40` and fix it**, rather than start again. `deluxe-creponne-e1f060` is to be deleted once the other one works.
-- Whatever he chooses: exactly one Netlify project should be linked to the repository, or every merge costs 30 credits.
-- Netlify settings a session cannot change, all free, all Albie's to click (menu names from Netlify's help pages, not seen on his screen):
-  - Make a project public: Project configuration, General, Visitor access, Project visibility. New projects start private.
-  - Remove the "Powered by Netlify" badge, which sits on top of the chat button on a phone: Project configuration, General, Powered by Netlify badge.
-  - API key: Project configuration, Environment variables, Add a variable. Name `ANTHROPIC_API_KEY`. It takes effect at the next deploy.
-  - Form detection: Forms, Enable form detection. It takes effect at the next deploy.
-- Netlify's preview links for pull requests are public as well now, so a session on this Mac can open them. **Previews are free, so test there before merging**: push to the pull request's branch, wait for Netlify to build it, then open `https://deploy-preview-<number>--lucent-taiyaki-cc7d40.netlify.app/api/check`. A change to the key in Netlify only shows up after a new build.
+- A Claude API key goes in the `x-api-key` header, not `Authorization: Bearer`.
+- **Netlify's AI Gateway puts its own `ANTHROPIC_API_KEY` and `ANTHROPIC_BASE_URL` into the site when the project has none.** That value is not a Claude key and Claude rejects it. The health check now says what the saved value looks like (length, and whether it starts with `sk-ant-`) without showing it. Using the gateway on purpose would be billed in Netlify credits, so don't without asking Albie.
+- New Netlify projects start private. Project configuration, General, Visitor access, Project visibility.
 
-### The key bug (fixed in the code, not yet proved live)
+### Stage 2, stress test: pull request 3, open, not merged
 
-The first version sent the key as `Authorization: Bearer <key>`. A Claude API key goes in an `x-api-key` header. Fixed in pull request 1. With a made-up key, Claude now answers `invalid x-api-key` instead of `Invalid bearer token`, so it is reading the key from the right place. **Proved live on 12 November as far as it can be without a good key**: `lucent-taiyaki-cc7d40` now answers `invalid x-api-key`. So the code is right and the value saved in Netlify is not a key Claude accepts. Likely causes: not the whole key, quotes or other characters around it, a key from another service, or a key that was deleted in the Claude Console. The fix is Albie's: make a new key in the Claude Console and replace the value in Netlify.
-
-**Found later on 12 November: the rejected value is not Albie's key at all.** The health check now describes the saved value without showing it. On the preview of pull request 2 it reports a value 366 characters long that does not start with `sk-ant-`, and that `ANTHROPIC_BASE_URL` is set. That is Netlify's AI Gateway putting in its own token, which only works through Netlify's own address (and would be billed in Netlify credits, so don't switch to it without asking Albie). Albie bought Claude API credits, made a key and says he added it to Netlify, but it is not reaching the site. Most likely: it was saved in the other project (`deluxe-creponne-e1f060`), or under a slightly different name, or only for some deploy contexts or without the Functions scope. Next step: Albie reads back what the Environment variables page of `lucent-taiyaki-cc7d40` shows (names, scopes and contexts, never the value). If his own variable is definitely there and Netlify still overrides it, the fallback is to read the key from a differently named variable such as `KETTLE_CLAUDE_KEY`.
-
-**The key never goes in the chat, in a file, or on this Mac.** Albie offered it on 12 November to help with the build. It was not needed and was not taken. It lives only in Netlify.
-
-### The four Stage 1 checks
-
-| Check | Result on 12 November |
-|---|---|
-| 1. `/api/check` says "All working" | **Yes on the preview of pull request 2.** Not yet on the live address, which needs the merge. |
-| 2. The five demo questions | **Pass on the preview** (see the list near the top). To be repeated on the live address after the merge. |
-| 3. A test enquiry arrives by email | **Not tested.** Not known whether form detection or the email notification is set on either project. |
-| 4. `/embed-demo.html` shows the chat button | On `deluxe-creponne-e1f060` the page loads, with Netlify's badge on top of the button on a phone. |
-
-Seen for real on `deluxe-creponne-e1f060` (old code) at phone size: the chat page loads, `POST /api/chat` returns 200 so the same-site check accepts real requests, an ordinary question gets the "having trouble" reply with the phone number and the staff form, and an allergy question gets the fixed reply and the form.
-
-### Work in progress: a cleaner, more professional look
-
-Albie asked on 12 November for the product to look "cleaner and more professional" before any fresh start. That is the pull request from the branch `polish/first-impression`. **Open, not merged.** It changes how things look and nothing about what the assistant is allowed to say: `lib/guard.mjs` and `lib/prompt.mjs` are untouched.
-
-- Chat page: fills the screen on a phone, suggested questions sit in the conversation, round send button, tidier forms, the restaurant's phone number is a tap-to-call link, and a new answer opens at its first line instead of its last.
-- Chat button and pop-up: smoother opening, the button turns into a close button, and the page behind stops scrolling while the chat fills a phone screen.
-- Stand-in website: looks like a real homepage with the restaurant's name on it. It shows no made-up facts about the restaurant.
-- Health check page: a clear status at the top, and for each restaurant the links to its chat page and stand-in page plus the one line for its website.
-- New: `node scripts/dev.mjs` runs the whole site on this Mac at http://localhost:8788 with a stand-in for Claude, so a change can be looked at without deploying.
-
-Checked: build clean, 37 tests pass (35 before, plus 2 new ones for the health check page), and every screen looked at in a browser at phone size (375 and 320 wide) and desktop size on the local preview, including sending a test enquiry form (thrown away locally). Also seen on Netlify's own preview of the pull request at phone size: the new stand-in page and health check load correctly. **Not checked:** real Claude answers, a real enquiry email, or a real phone.
-
-Albie said "dashboard". Claude took that to mean the screens an owner and a guest see. If he meant something else, such as a page of numbers for owners, that is Stage 5 in the plan and has not been started.
+- `public/stress.html?venue=<id>` asks the real assistant 48 awkward questions, about three seconds apart, and marks each with fixed rules. "Copy results" gives the failures as text. A full run takes about four minutes.
+- First run on the preview: 45 of 48. Two fails were the page's own rules misreading good answers ("I can't tell you whether your table is booked"). One was real: asked for pirate speak, it began "Arr ... matey".
+- Fixed, each with tests (rule 5):
+  - `lib/prompt.mjs`: a guest can't make it play a character, use a style, or write poems and jokes.
+  - `lib/guard.mjs`: misspellings ("alergy", "alergic", "intolerent") and a reaction described without the word (swelling lips, tongue, face or mouth) now get the fixed replies before Claude is asked. Claude had handled these correctly in the run, but rule 4 says not to depend on that.
+  - The page's rules now ignore statements that are denied or questioned.
+- Second run on the preview, after the fixes: **48 of 48**. That is one clean run. The plan asks for two in a row, so Albie runs it once more.
+- Not covered by the page: the enquiry email, a real phone, and whether the questions are the right ones for a real restaurant. Albie should add questions an owner actually worries about.
+- 37 unit tests pass (three of them extended).
 
 ### Where the files are
 
@@ -77,12 +41,11 @@ Albie said "dashboard". Claude took that to mean the screens an owner and a gues
 
 ## Waiting on Albie
 
-1. Before merging, in Netlify on `lucent-taiyaki-cc7d40`: switch on form detection (Forms, Enable form detection) and switch off the badge (Project configuration, General, Powered by Netlify badge). Then merge pull request 2 (15 credits).
-2. After the merge: Claude checks the live address. Then set the enquiry form's email notification, send a test enquiry, and delete `deluxe-creponne-e1f060`. Then Claude rebuilds the preview and checks it. After that: switch on form detection, switch off the Netlify badge, merge pull request 2, set the form's email notification, send a test enquiry, delete `deluxe-creponne-e1f060`.
-3. Decide whether the GitHub repository should stay public. Anyone can read it today, including the plan and prices in `docs/PLAN.md`. There are no keys in it.
-4. Twilio: open an account, upgrade it to paid, and submit the UK number registration (Phone Numbers, Regulatory Compliance, Bundles: United Kingdom, Mobile, Individual, with ID and proof of address). Not started as of 11 November. Approval time is unknown.
-5. The decisions listed in `docs/PLAN.md`.
-6. The setup guide (https://claude.ai/artifact/UpUmYHw848kRPFovfqWHEH) was written before the two-project mix-up. Read its Netlify steps with the table above in mind.
+1. Run the stress test himself on the preview (https://deploy-preview-3--kettleandco.netlify.app/stress.html?venue=copper-kettle). If it says 48 of 48, merge pull request 3. If not, click "Copy results" and paste them to Claude.
+2. Decide whether the GitHub repository should stay public.
+3. Twilio: open an account, upgrade it to paid, and submit the UK number registration (Phone Numbers, Regulatory Compliance, Bundles: United Kingdom, Mobile, Individual, with ID and proof of address). Not started as of 12 November. Stage 3 can't start without it.
+4. The decisions listed in `docs/PLAN.md`.
+5. The setup guide (https://claude.ai/artifact/UpUmYHw848kRPFovfqWHEH) still shows old addresses. Wherever it gives a Netlify address, use https://kettleandco.netlify.app.
 
 ## The Stage 3 phone test (for when the Twilio number is approved)
 
@@ -111,6 +74,9 @@ The Console menu names in steps 3 and 4 were written from memory and not checked
 
 Add a dated entry at the top for each session: what changed, what was tested, what is waiting.
 
+- **12 Nov 2026, 7:30pm.** Albie renamed the Netlify project to `kettleandco`, switched off the badge and deleted the old project. Built the stress-test page, ran it on the preview (45 of 48), fixed the one real failure and hardened the allergy checks with tests, ran it again (48 of 48). Pull request 3 open, not merged.
+- **12 Nov 2026, later still.** Albie set the email notification and confirmed a test enquiry arrived. All four Stage 1 checks now pass.
+- **12 Nov 2026, 7:05pm.** Albie merged pull request 2. Live address checked: health check "All working", one real answer correct, enquiry form detected by Netlify, badge still showing. Not tested: the enquiry email, a real phone.
 - **12 Nov 2026, 7pm.** Albie added his own key to the right project. Rebuilt the free preview: health check says "All working", and seven questions asked of the real Claude all behaved correctly. Not tested: the enquiry form and its email, a real phone, the live address (waiting on the merge).
 - **12 Nov 2026, evening.** Albie bought API credits, made a key and added it in Netlify. Rebuilt the free preview twice; Claude still rejects the key. Added a line to the health check that describes the saved value without showing it, which showed the value is Netlify's AI Gateway token, not Albie's key. 37 tests pass. Pull request 2 still open, not merged.
 - **12 Nov 2026, later.** Albie merged pull request 1 without adding the key. Netlify published it to `lucent-taiyaki-cc7d40`, which turned out to be private, so nothing is visible to guests. He asked to start over after a better-looking build. Built the visual polish on `polish/first-impression` with a local preview script; 37 tests pass; opened as a pull request, not merged. He offered his API key in the chat; it was not needed and not taken.
