@@ -18,6 +18,7 @@ Setup guide (step by step): https://claude.ai/artifact/UpUmYHw848kRPFovfqWHEH
 | `lib/guard.mjs` | The safety checks that don't rely on Claude. | No |
 | `lib/claude.mjs` | Sends the question to Claude. | No |
 | `scripts/build.mjs` | Runs on every deploy. Checks the restaurant files. | No |
+| `scripts/dev.mjs` | Shows the site on your own computer, without deploying. Not live. | No |
 | `netlify.toml` | Netlify's settings. | No |
 | `tests/` | Automated tests. | No |
 | `CLAUDE.md` | Instructions Claude Code reads at the start of every session. | No |
@@ -50,4 +51,5 @@ Replace `YOUR-NAME` with your Netlify project name and `ID` with a restaurant's 
 ```
 node scripts/build.mjs
 node --test tests/*.test.mjs
+node scripts/dev.mjs     # see the site on your own computer at http://localhost:8788
 ```

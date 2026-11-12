@@ -4,80 +4,133 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="robots" content="noindex">
+<meta name="theme-color" content="#FFFFFF">
 <title>Website assistant</title>
 <style>
 /* One page, two uses: opened directly it is a full chat page for one restaurant;
    opened with &embed=1 it fills the pop-up that widget.js adds to a restaurant's own site. */
 :root{
   --accent:#1C6A4F; --accent-fg:#FFFFFF;
-  --accent-soft:#D9ECE3;
-  --bg:#F2F5F3; --surface:#FFFFFF; --fg:#14201A; --muted:#56655E; --line:#D3DCD7;
-  --amber:#7F5300; --amber-soft:#FBE9C2; --red:#9E3219; --red-soft:#F8DDD5;
+  --accent-soft:#E6F0EB; --accent-line:#BBD6CA;
+  --bg:#F4F5F3; --surface:#FFFFFF; --fg:#17201C; --muted:#5A6761; --line:#E0E5E2;
+  --amber:#7F5300; --amber-soft:#FBEBC8; --red:#9E3219; --red-soft:#F9E1DA;
   --font:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
 }
 @supports (color:color-mix(in srgb,red,white)){
-  :root{--accent-soft:color-mix(in srgb,var(--accent) 14%,white)}
+  :root{--accent-soft:color-mix(in srgb,var(--accent) 9%,white);--accent-line:color-mix(in srgb,var(--accent) 30%,white)}
 }
 *{box-sizing:border-box}
 [hidden]{display:none!important}
 html,body{height:100%}
-body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.5 var(--font);-webkit-text-size-adjust:100%}
-.page{min-height:100%;height:100dvh;display:flex;flex-direction:column;align-items:center;gap:12px;
-  padding:20px max(16px,env(safe-area-inset-right)) 20px max(16px,env(safe-area-inset-left))}
-.chat{width:100%;max-width:560px;flex:1;min-height:0;background:var(--surface);border:1px solid var(--line);
-  border-radius:18px;display:flex;flex-direction:column;overflow:hidden}
-.chat-head{display:flex;align-items:center;gap:12px;padding:12px 14px;border-bottom:1px solid var(--line)}
-.avatar{width:40px;height:40px;border-radius:50%;background:var(--accent);color:var(--accent-fg);display:grid;
-  place-items:center;font-weight:700;flex:none;letter-spacing:.02em}
+body{margin:0;background:var(--bg);color:var(--fg);font:15.5px/1.5 var(--font);-webkit-text-size-adjust:100%;
+  -webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent}
+svg{display:block}
+
+/* ---------- frame ---------- */
+.page{min-height:100%;height:100dvh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;
+  padding:28px 20px;background:linear-gradient(180deg,var(--accent-soft),var(--bg) 340px)}
+.chat{width:100%;max-width:440px;flex:1 1 auto;min-height:0;max-height:780px;background:var(--surface);
+  border:1px solid var(--line);border-radius:24px;display:flex;flex-direction:column;overflow:hidden;
+  box-shadow:0 1px 2px rgba(23,32,28,.05),0 20px 50px -12px rgba(23,32,28,.18)}
+.foot{margin:0;font-size:12.5px;color:var(--muted);text-align:center}
+
+/* ---------- header ---------- */
+.chat-head{display:flex;align-items:center;gap:12px;padding:14px 16px;border-bottom:1px solid var(--line);flex:none}
+.avatar{width:42px;height:42px;border-radius:50%;background:var(--accent);color:var(--accent-fg);display:grid;
+  place-items:center;font-weight:700;font-size:15px;flex:none;letter-spacing:.03em}
 .who{min-width:0;flex:1}
-.who b{display:block;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.who small{display:block;color:var(--muted);font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.close{font:inherit;font-size:22px;line-height:1;width:36px;height:36px;border-radius:50%;border:0;background:transparent;
-  color:var(--muted);cursor:pointer;flex:none}
-.close:hover{background:var(--bg)}
-.log{flex:1;min-height:0;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px;background:var(--bg);
-  overscroll-behavior:contain}
-.msg{max-width:88%;padding:9px 13px;border-radius:14px;white-space:pre-line;overflow-wrap:anywhere}
-.msg.bot{align-self:flex-start;background:var(--surface);border:1px solid var(--line);border-bottom-left-radius:4px}
-.msg.guest{align-self:flex-end;background:var(--accent);color:var(--accent-fg);border-bottom-right-radius:4px}
-.msg.note{align-self:center;background:transparent;border:1px dashed var(--line);color:var(--muted);font-size:13px;
-  text-align:center;max-width:94%;white-space:normal}
+.who b{display:block;font-size:16px;font-weight:650;line-height:1.3;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.who small{display:block;color:var(--muted);font-size:13px;line-height:1.35;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.close{width:40px;height:40px;border-radius:50%;border:0;background:transparent;color:var(--muted);cursor:pointer;flex:none;
+  display:grid;place-items:center;margin-right:-6px}
+.close:hover{background:var(--bg);color:var(--fg)}
+.close svg{width:20px;height:20px}
+.demo{margin:0;padding:7px 16px;font-size:12.5px;line-height:1.4;color:var(--amber);background:var(--amber-soft);flex:none}
+
+/* ---------- conversation ---------- */
+.log{flex:1;min-height:0;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px;background:var(--bg);
+  overscroll-behavior:contain;scroll-behavior:smooth}
+.msg{max-width:86%;padding:10px 14px;border-radius:18px;white-space:pre-line;overflow-wrap:anywhere;animation:rise .2s ease-out both}
+.msg.bot{align-self:flex-start;background:var(--surface);border:1px solid var(--line);border-bottom-left-radius:6px;
+  box-shadow:0 1px 1px rgba(23,32,28,.03)}
+.msg.guest{align-self:flex-end;background:var(--accent);color:var(--accent-fg);border-bottom-right-radius:6px}
+.msg.note{align-self:center;background:var(--accent-soft);color:var(--fg);font-size:13.5px;text-align:center;max-width:94%;
+  white-space:normal;border-radius:12px;padding:9px 13px}
+.msg.wide{max-width:100%;align-self:stretch}
+.msg .t a{color:var(--accent);font-weight:600;text-decoration:underline;text-underline-offset:2px;white-space:nowrap}
 .msg .actions,.msg form{white-space:normal}
-.actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
-.btn{font:inherit;font-size:14px;font-weight:600;border-radius:999px;padding:7px 14px;cursor:pointer;
-  border:1px solid var(--accent);background:var(--accent);color:var(--accent-fg);text-decoration:none;display:inline-block}
-.btn.ghost{background:transparent;color:var(--accent)}
-.btn:disabled{opacity:.5;cursor:default}
-.btn:focus-visible,.chip:focus-visible,.field:focus-visible,#ask:focus-visible,.close:focus-visible{
+@keyframes rise{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+.quick{align-self:stretch;margin-top:6px;animation:rise .2s ease-out .08s both}
+.quick p{margin:0 0 8px 2px;font-size:12.5px;font-weight:600;color:var(--muted)}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{font:inherit;font-size:14.5px;font-weight:550;line-height:1.3;min-height:40px;padding:8px 14px;border-radius:999px;
+  border:1px solid var(--accent-line);background:var(--surface);color:var(--accent);cursor:pointer;text-align:left;
+  transition:background .12s ease,border-color .12s ease}
+.chip:hover{background:var(--accent-soft);border-color:var(--accent)}
+
+/* ---------- buttons ---------- */
+.actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.btn{font:inherit;font-size:14.5px;font-weight:600;line-height:1.2;min-height:40px;border-radius:999px;padding:9px 16px;cursor:pointer;
+  border:1px solid var(--accent);background:var(--accent);color:var(--accent-fg);text-decoration:none;
+  display:inline-flex;align-items:center;justify-content:center;gap:7px;transition:filter .12s ease,background .12s ease}
+.btn:hover{filter:brightness(1.08)}
+.btn svg{width:15px;height:15px;flex:none}
+.btn.ghost{background:transparent;color:var(--accent);border-color:var(--accent-line)}
+.btn.ghost:hover{background:var(--accent-soft);filter:none}
+.btn.block{width:100%}
+.btn:disabled{opacity:.5;cursor:default;filter:none}
+.btn:focus-visible,.chip:focus-visible,.field:focus-visible,#ask:focus-visible,.close:focus-visible,.send:focus-visible,.msg .t a:focus-visible{
   outline:2px solid var(--accent);outline-offset:2px}
-form.handoff{display:grid;gap:8px;margin-top:10px}
-form.handoff label{display:grid;gap:3px;font-size:13px;color:var(--muted)}
-.field,#ask{font:inherit;font-size:16px;color:var(--fg);background:var(--bg);border:1px solid var(--line);
-  border-radius:10px;padding:8px 10px;width:100%;min-width:0}
-.pill{display:block;width:fit-content;font-size:12px;font-weight:600;padding:2px 9px;border-radius:999px;
-  background:var(--amber-soft);color:var(--amber);margin-top:10px}
+
+/* ---------- passing something to the team ---------- */
+.pill{display:flex;width:fit-content;align-items:center;gap:6px;font-size:12.5px;font-weight:650;padding:3px 10px;border-radius:999px;
+  background:var(--amber-soft);color:var(--amber);margin-top:12px}
+.pill::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor}
 .pill.urgent{background:var(--red-soft);color:var(--red)}
-.err{margin:0;color:var(--red);font-size:13px}
-.small{margin:0;font-size:12.5px;color:var(--muted)}
-.typing{display:flex;gap:5px;align-items:center;min-height:22px}
+form.handoff{display:grid;gap:10px;margin-top:10px}
+form.handoff label{display:grid;gap:4px;font-size:13px;font-weight:550;color:var(--muted)}
+.field,#ask{font:inherit;font-size:16px;color:var(--fg);background:var(--bg);border:1px solid var(--line);
+  border-radius:12px;padding:10px 12px;width:100%;min-width:0;min-height:44px}
+.field::placeholder,#ask::placeholder{color:#8A9690}
+.field:focus,#ask:focus{background:var(--surface);border-color:var(--accent-line)}
+form.handoff .actions{margin-top:2px}
+form.handoff.sent .field{opacity:.6}
+.err{margin:0;color:var(--red);font-size:13.5px}
+.small{margin:0;font-size:12.5px;line-height:1.4;color:var(--muted)}
+
+/* ---------- typing dots ---------- */
+.typing{display:flex;gap:5px;align-items:center;min-height:23px;padding:0 2px}
 .typing i{width:7px;height:7px;border-radius:50%;background:var(--muted);animation:blink 1.2s infinite ease-in-out}
 .typing i:nth-child(2){animation-delay:.15s}.typing i:nth-child(3){animation-delay:.3s}
 @keyframes blink{0%,80%,100%{opacity:.25}40%{opacity:1}}
-.try{padding:10px 14px 0;border-top:1px solid var(--line)}
-.try p{margin:0 0 6px;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
-.chips{display:flex;flex-wrap:wrap;gap:6px}
-.chip{font:inherit;font-size:13px;padding:6px 11px;border-radius:999px;border:1px solid var(--line);background:var(--surface);
-  color:var(--fg);cursor:pointer;text-align:left}
-.chip:hover{border-color:var(--accent)}
-.composer{display:flex;gap:8px;padding:10px 14px}
-.try[hidden] + .composer{border-top:1px solid var(--line)}
-.fine{margin:0;padding:0 14px 12px;font-size:12.5px;color:var(--muted)}
-.foot{margin:0;font-size:13px;color:var(--muted);text-align:center;max-width:560px}
+
+/* ---------- question box ---------- */
+.composer{display:flex;align-items:center;gap:8px;padding:12px 12px 8px 14px;border-top:1px solid var(--line);flex:none}
+#ask{border-radius:999px;padding:10px 16px}
+.send{width:44px;height:44px;border-radius:50%;border:0;background:var(--accent);color:var(--accent-fg);cursor:pointer;flex:none;
+  display:grid;place-items:center;transition:filter .12s ease,opacity .12s ease}
+.send:hover{filter:brightness(1.08)}
+.send:disabled{opacity:.4;cursor:default;filter:none}
+.send svg{width:20px;height:20px}
+.fine{margin:0;padding:0 18px max(12px,env(safe-area-inset-bottom));font-size:12px;line-height:1.4;color:var(--muted);text-align:center;flex:none}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
-body.embed .page{padding:0;gap:0}
-body.embed .chat{max-width:none;border:0;border-radius:0}
+
+/* ---------- phones: the chat fills the screen ---------- */
+@media (max-width:599px){
+  .page{padding:0;gap:0;background:var(--surface)}
+  .chat{max-width:none;max-height:none;border:0;border-radius:0;box-shadow:none}
+  .chat-head{padding-top:max(14px,env(safe-area-inset-top))}
+  .fine{padding-bottom:8px}
+  .foot{padding:0 16px max(10px,env(safe-area-inset-bottom));font-size:12px}
+}
+/* ---------- inside the pop-up on a restaurant's own site ---------- */
+body.embed .page{padding:0;gap:0;background:var(--surface)}
+body.embed .chat{max-width:none;max-height:none;border:0;border-radius:0;box-shadow:none}
+body.embed .chat-head{padding-top:14px}
+body.embed .fine{padding-bottom:max(12px,env(safe-area-inset-bottom))}
 body.embed .foot{display:none}
-@media (prefers-reduced-motion:reduce){*{animation:none!important;scroll-behavior:auto!important}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
 </style>
 </head>
 <body>
@@ -86,17 +139,19 @@ body.embed .foot{display:none}
     <header class="chat-head">
       <div class="avatar" id="avatar" aria-hidden="true"></div>
       <div class="who"><b id="bizName">Loading…</b><small id="bizLabel"></small></div>
-      <button class="close" id="closeBtn" type="button" aria-label="Close chat" hidden>&times;</button>
+      <button class="close" id="closeBtn" type="button" aria-label="Close chat" hidden>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
     </header>
+    <p class="demo" id="demo" hidden></p>
     <div class="log" id="log" role="log" aria-live="polite"></div>
-    <div class="try" id="try" hidden>
-      <p>Try asking</p>
-      <div class="chips" id="chips"></div>
-    </div>
     <form class="composer" id="composer">
       <label class="sr" for="ask">Your question</label>
-      <input id="ask" autocomplete="off" maxlength="500" placeholder="Ask a question" disabled>
-      <button class="btn" type="submit" id="sendBtn" disabled>Send</button>
+      <input id="ask" autocomplete="off" maxlength="500" placeholder="Ask a question" enterkeyhint="send" disabled>
+      <button class="send" type="submit" id="sendBtn" disabled>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5M5.5 11.5L12 5l6.5 6.5"/></svg>
+        <span class="sr">Send</span>
+      </button>
     </form>
     <p class="fine" id="fine"></p>
   </main>
@@ -113,8 +168,8 @@ var embed = qs.get("embed") === "1";
 if (embed) document.body.classList.add("embed");
 
 var $ = function (id) { return document.getElementById(id); };
-var logEl = $("log"), askEl = $("ask"), sendBtn = $("sendBtn"), tryEl = $("try"), chipsEl = $("chips");
-var cfg = null, turns = [], busy = false, formCount = 0;
+var logEl = $("log"), askEl = $("ask"), sendBtn = $("sendBtn");
+var cfg = null, turns = [], busy = false, formCount = 0, quickEl = null;
 var STORE = "kc-chat-" + venueId;
 
 var FIELD = {
@@ -123,6 +178,7 @@ var FIELD = {
   name: { label: "Your name", ph: "e.g. Sam" },
   contact: { label: "Phone or email", ph: "e.g. 07700 900123" }
 };
+var ARROW = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17L17 7M9 7h8v8"/></svg>';
 
 function el(tag, cls, text) {
   var e = document.createElement(tag);
@@ -131,9 +187,29 @@ function el(tag, cls, text) {
   return e;
 }
 function scrollEnd() { logEl.scrollTop = logEl.scrollHeight; }
+// Shows the start of a new answer. A long one, with a form in it, would otherwise open scrolled to its end.
+function reveal(m) {
+  if (m.offsetHeight <= logEl.clientHeight - 24) return scrollEnd();
+  logEl.scrollTop += m.getBoundingClientRect().top - logEl.getBoundingClientRect().top - 12;
+}
+
+// Writes text into a bubble. In the assistant's bubbles the restaurant's phone number becomes a tap-to-call link.
+function fill(node, text, linkPhone) {
+  var phone = linkPhone && cfg && cfg.phone;
+  if (!phone || text.indexOf(phone) < 0) { node.textContent = text; return; }
+  text.split(phone).forEach(function (part, i) {
+    if (i) {
+      var a = el("a", null, phone);
+      a.href = "tel:" + phone.replace(/[^\d+]/g, "");
+      node.append(a);
+    }
+    if (part) node.append(document.createTextNode(part));
+  });
+}
 function addMsg(role, text) {
-  var m = el("div", "msg " + role);
-  m.append(el("span", "t", text));
+  var m = el("div", "msg " + role), t = el("span", "t");
+  fill(t, text, role === "bot");
+  m.append(t);
   logEl.append(m);
   scrollEnd();
   return m;
@@ -160,6 +236,7 @@ function setBusy(on) {
 function bookingControl() {
   if (cfg.bookingUrl) {
     var a = el("a", "btn", cfg.bookingLabel);
+    a.insertAdjacentHTML("beforeend", ARROW);
     a.href = cfg.bookingUrl;
     a.target = "_blank";
     a.rel = "noopener";
@@ -167,6 +244,7 @@ function bookingControl() {
   }
   var shown = false;
   var b = el("button", "btn", cfg.bookingLabel);
+  b.insertAdjacentHTML("beforeend", ARROW);
   b.type = "button";
   b.addEventListener("click", function () {
     if (shown) return;
@@ -182,6 +260,7 @@ function addForm(host, handoff, question) {
   f.noValidate = true;
   var id = "h" + (++formCount), inputs = {};
   var pill = el("span", "pill" + (handoff.urgent ? " urgent" : ""), handoff.type);
+  host.classList.add("wide");
   host.append(pill);
   handoff.fields.forEach(function (k) {
     var F = FIELD[k];
@@ -203,7 +282,7 @@ function addForm(host, handoff, question) {
   var err = el("p", "err");
   err.hidden = true;
   err.setAttribute("role", "alert");
-  var sub = el("button", "btn", "Send to the team");
+  var sub = el("button", "btn block", "Send to the team");
   sub.type = "submit";
   var row = el("div", "actions");
   row.append(sub);
@@ -248,7 +327,8 @@ function addForm(host, handoff, question) {
     }).then(function (res) {
       if (!res.ok) throw new Error("status " + res.status);
       f.querySelectorAll("input,button").forEach(function (x) { x.disabled = true; });
-      sub.textContent = "Sent";
+      f.classList.add("sent");
+      sub.textContent = "Sent to the team";
       var first = v.name.split(/\s+/)[0];
       var t = "Thanks, " + first + ". I've passed this to the team with your details and they'll be in touch. " +
         (handoff.fields.indexOf("date") >= 0 ? "Nothing is booked until they confirm." : "");
@@ -279,6 +359,7 @@ function renderBot(r, question) {
       b.disabled = true;
       var lead = addMsg("bot", r.offer.lead || "Sure. Pop your details in and I'll pass it on.");
       addForm(lead, r.offer.handoff, question);
+      reveal(lead);
     });
     acts.push(b);
   }
@@ -288,14 +369,14 @@ function renderBot(r, question) {
     m.append(a);
   }
   if (r.handoff) addForm(m, r.handoff, question);
-  scrollEnd();
+  reveal(m);
 }
 
 function send(text) {
   text = (text || "").trim();
   if (!text || busy || !cfg) return;
   setBusy(true);
-  tryEl.hidden = true;
+  if (quickEl) { quickEl.remove(); quickEl = null; }
   addMsg("guest", text);
   remember("user", text);
   var typing = addTyping();
@@ -327,6 +408,22 @@ function initials(name) {
   return ((words[0] || "?").charAt(0) + (words[1] ? words[1].charAt(0) : "")).toUpperCase();
 }
 
+function addSuggestions(list) {
+  quickEl = el("div", "quick");
+  quickEl.setAttribute("role", "group");
+  quickEl.setAttribute("aria-label", "Suggested questions");
+  quickEl.append(el("p", null, "People often ask"));
+  var chips = el("div", "chips");
+  list.forEach(function (q) {
+    var chip = el("button", "chip", q);
+    chip.type = "button";
+    chip.addEventListener("click", function () { send(q); });
+    chips.append(chip);
+  });
+  quickEl.append(chips);
+  logEl.append(quickEl);
+}
+
 function start(c) {
   cfg = c;
   document.documentElement.style.setProperty("--accent", cfg.accent);
@@ -334,8 +431,12 @@ function start(c) {
   $("avatar").textContent = initials(cfg.name);
   $("bizName").textContent = cfg.name;
   $("bizLabel").textContent = [cfg.label, cfg.demo ? "example business" : ""].filter(Boolean).join(" · ");
+  if (cfg.demo) {
+    $("demo").textContent = cfg.name + " is a made-up business, here to show how the assistant works.";
+    $("demo").hidden = false;
+  }
   $("fine").textContent = "AI assistant for " + cfg.name + ". It can't make or confirm bookings. For allergies, always check with the team.";
-  $("foot").textContent = (cfg.demo ? cfg.name + " is a made-up business used to show how the assistant works. " : "") + "Assistant by Kettle and Co.";
+  $("foot").textContent = "Assistant by Kettle and Co";
 
   var saved = [];
   try { saved = JSON.parse(sessionStorage.getItem(STORE) || "[]"); } catch (e) {}
@@ -347,13 +448,7 @@ function start(c) {
       turns.push({ role: t.role === "user" ? "user" : "assistant", content: t.content });
     });
   } else if (cfg.suggested.length) {
-    cfg.suggested.forEach(function (q) {
-      var chip = el("button", "chip", q);
-      chip.type = "button";
-      chip.addEventListener("click", function () { send(q); });
-      chipsEl.append(chip);
-    });
-    tryEl.hidden = false;
+    addSuggestions(cfg.suggested);
   }
   askEl.disabled = false;
   setBusy(false);
