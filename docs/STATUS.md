@@ -2,7 +2,7 @@
 
 Last updated: 12 November 2026, by a Claude Code session running on Albie's Mac (not a cloud session).
 
-## Current stage: 1, go live. The site is up. Claude's answers are blocked by a bug in the code.
+## Current stage: 1, go live. The fix for Claude's answers is in pull request 1, waiting for Albie to add his key and merge.
 
 - Netlify address in use today: https://deluxe-creponne-e1f060.netlify.app
 - GitHub repository: https://github.com/albieleedriscoll-ui/Kettle-Assistant (public)
@@ -28,11 +28,13 @@ Also seen for real, in a browser at phone size:
 - An ordinary question gets the "having trouble" reply with the phone number and the staff form. Rule 6 holds on the live site.
 - "My son has a nut allergy, is the brownie safe?" gets the fixed allergy reply and the form.
 
-### The bug to fix next
+### The key bug, and its fix
 
 `lib/claude.mjs` sends the key as `Authorization: Bearer <key>`. A Claude API key goes in an `x-api-key` header. Bearer is for a different kind of login, which is why Claude answers `Invalid bearer token`. Albie's key is very likely fine, and he should not paste it again or make a new one.
 
-The fix, **not made yet**: change that one header in `lib/claude.mjs`, change the matching check in `tests/chat.test.mjs` (the line that expects `Bearer test-key`), and correct the "Claude API" row in the facts table in `docs/PLAN.md`. It can only be proved by deploying it and reloading `/api/check`.
+The fix is in pull request 1 (12 November): `lib/claude.mjs` now sends the key as `x-api-key`, `tests/chat.test.mjs` checks for that, and the "Claude API" row in the facts table in `docs/PLAN.md` is corrected.
+
+Checked for real: with a made-up key, Claude now answers `invalid x-api-key` instead of `Invalid bearer token`, so it is reading the key from the right place. **Not proved until Albie's real key is used**: add the key to `lucent-taiyaki-cc7d40`, merge, then load `/api/check` on that project's address.
 
 ### Where the files are
 
@@ -47,15 +49,17 @@ The fix, **not made yet**: change that one header in `lib/claude.mjs`, change th
 
 ### Agreed order of work (Albie's, 12 November)
 
-1. One pull request that puts the GitHub repository back into folders. **Open, waiting for Albie to merge** (branch `tidy/restore-folders`). Proposed, not yet agreed: add the bug fix above to the same pull request, so one deploy covers both.
-2. Check that Netlify is linked to the repository. **Checked: it is, but through `lucent-taiyaki-cc7d40`, not the project Albie has been using.** He needs to choose which project to keep. Claude's recommendation: keep `lucent-taiyaki-cc7d40`, add the API key to it, and delete `deluxe-creponne-e1f060` afterwards. Still to prove: that a merge reaches the live site.
+1. One pull request that puts the GitHub repository back into folders. **Open, waiting for Albie to merge** (branch `tidy/restore-folders`). Albie agreed on 12 November to add the key bug fix to it, so one deploy covers both.
+2. Check that Netlify is linked to the repository. **Checked: it is, but through `lucent-taiyaki-cc7d40`, not the project Albie has been using.** **Albie chose on 12 November to keep `lucent-taiyaki-cc7d40` as the real site.** Once pull request 1 is merged, the address to use is https://lucent-taiyaki-cc7d40.netlify.app, and `deluxe-creponne-e1f060` should be deleted. Still to prove: that a merge reaches the live site. The proof is `/api/check` on the new address saying "All working" after the merge.
 3. Look at the whole thing as an owner would on a phone and give Albie five ranked improvements. He chooses. Don't build them all.
 
 ## Waiting on Albie
 
-1. Choose which Netlify project to keep, and say whether the key bug fix should go into pull request 1 (https://github.com/albieleedriscoll-ui/Kettle-Assistant/pull/1). Don't merge until that is settled: a merge publishes to `lucent-taiyaki-cc7d40` and costs 15 credits.
+1. In Netlify, on the project `lucent-taiyaki-cc7d40`, **before merging**: add the environment variable `ANTHROPIC_API_KEY`, and switch on form detection under Forms. Doing both first means the one merge deploy picks them up, with no second 15-credit deploy.
+   Then merge pull request 1 (https://github.com/albieleedriscoll-ui/Kettle-Assistant/pull/1) and open https://lucent-taiyaki-cc7d40.netlify.app/api/check.
+   After it says "All working": set the email notification for the enquiry form, send a test enquiry, and delete the `deluxe-creponne-e1f060` project.
 2. Decide whether the GitHub repository should stay public. Anyone can read it today, including the plan and prices in `docs/PLAN.md`. There are no keys in it.
-3. Still to finish from the setup guide (https://claude.ai/artifact/UpUmYHw848kRPFovfqWHEH): form detection and the email notification, unless already done.
+3. The setup guide (https://claude.ai/artifact/UpUmYHw848kRPFovfqWHEH) was written before the two-project mix-up. Where it says the Netlify project, it now means `lucent-taiyaki-cc7d40`.
 4. Twilio: open an account, upgrade it to paid, and submit the UK number registration (Phone Numbers, Regulatory Compliance, Bundles: United Kingdom, Mobile, Individual, with ID and proof of address). Not started as of 11 November. Approval time is unknown.
 5. The decisions listed in `docs/PLAN.md`.
 
@@ -86,5 +90,5 @@ The Console menu names in steps 3 and 4 were written from memory and not checked
 
 Add a dated entry at the top for each session: what changed, what was tested, what is waiting.
 
-- **12 Nov 2026.** Session on Albie's Mac. No code changed. Looked at the live site in a browser at phone size and found why Claude isn't answering (the key is sent in the wrong header). Confirmed the Desktop folder has the right layout. Later the same day, with Albie's agreement, installed Node 22 and GitHub's command-line tool in `~/kettle-tools`, then ran the build and the 35 tests on a copy of the Desktop folder: all passed. Albie approved the GitHub sign-in. Found the repository held the project twice (loose files, plus a laid-out copy inside a `kettle-assistant/` folder), connected the Desktop folder to it, and opened the tidy-up pull request from `tidy/restore-folders`. Build and 35 tests passed on that branch. Netlify built the pull request's preview successfully, which showed that the repository is linked to a second Netlify project, `lucent-taiyaki-cc7d40`. Not tested: real Claude answers, the enquiry form and its email, the preview itself (it is private), and whether a merge reaches the live site.
+- **12 Nov 2026.** Session on Albie's Mac. No code changed. Looked at the live site in a browser at phone size and found why Claude isn't answering (the key is sent in the wrong header). Confirmed the Desktop folder has the right layout. Later the same day, with Albie's agreement, installed Node 22 and GitHub's command-line tool in `~/kettle-tools`, then ran the build and the 35 tests on a copy of the Desktop folder: all passed. Albie approved the GitHub sign-in. Found the repository held the project twice (loose files, plus a laid-out copy inside a `kettle-assistant/` folder), connected the Desktop folder to it, and opened the tidy-up pull request from `tidy/restore-folders`. Build and 35 tests passed on that branch. Netlify built the pull request's preview successfully, which showed that the repository is linked to a second Netlify project, `lucent-taiyaki-cc7d40`. Not tested: real Claude answers, the enquiry form and its email, the preview itself (it is private), and whether a merge reaches the live site. Albie then chose to keep `lucent-taiyaki-cc7d40` and to add the key bug fix to pull request 1. Fix made, build and 35 tests pass, and a real request with a made-up key now gets `invalid x-api-key`.
 - **11 Nov 2026.** First version built: chat endpoint, safety checks, venue files with deploy-time validation, chat page, website widget, health check. 35 unit tests, a clean `netlify build`, and 12 browser checks in Netlify's local runtime with a stand-in for Claude. Not tested: real Claude answers, real Netlify Forms emails. Found that the earlier "live demo" was a scripted Claude artifact, not a hosted product, so this is the first real one.

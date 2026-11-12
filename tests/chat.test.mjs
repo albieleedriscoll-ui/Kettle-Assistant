@@ -62,7 +62,9 @@ test("an ordinary question goes to Claude and the answer comes back", async () =
   assert.equal(calls.length, 1);
   const call = calls[0];
   assert.equal(call.url, "https://api.anthropic.com/v1/messages");
-  assert.equal(call.headers.Authorization, "Bearer test-key");
+  // An API key goes in x-api-key. Sent as "Authorization: Bearer", Claude answers "Invalid bearer token".
+  assert.equal(call.headers["x-api-key"], "test-key");
+  assert.equal("Authorization" in call.headers, false);
   assert.equal(call.headers["anthropic-version"], "2026-10-21");
   assert.equal(call.body.model, "claude-haiku-5-5");
   assert.deepEqual(call.body.thinking, { type: "disabled" });
