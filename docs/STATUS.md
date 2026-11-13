@@ -12,6 +12,16 @@ Last updated: 12 November 2026, by a Claude Code session running on Albie's Mac 
 - GitHub repository: https://github.com/albieleedriscoll-ui/Kettle-Assistant (public; no keys in it; `docs/PLAN.md` with the prices is readable by anyone).
 - Restaurants live: none (only the demo, `copper-kettle`).
 
+### Design pass, 13 November: pull request open, not merged
+
+Albie installed Emil Kowalski's design skills (`~/.claude/skills`, 19 of them, text only) and asked for a "world class" interface. Branch `design/world-class`. It builds on edits another Claude session left uncommitted in the same three files that morning. Looks and feel only: `lib/guard.mjs`, `lib/prompt.mjs` and the fixed replies are untouched, and there are still no dependencies (so no animation library; the motion is hand-built CSS and a little script).
+
+- Chat page: messages rise from their own corner, suggested questions arrive one after another, the typing bubble becomes the answer, the send button wakes when there is text, a frosted header the conversation scrolls under, text sizes follow the reader's own setting, right-to-left text and unusual names handled.
+- On a phone the pop-up is a sheet: it slides up over a dimmed page and can be dragged down or flicked to close. `public/index.html` reports the finger's movement to `public/widget.js` with `kc-drag` and `kc-drag-end` messages.
+- The chat button changes into a close button. Closing with Escape is instant. People who have turned motion down get short fades and nothing moves.
+- Deliberately not done: dark mode (the chat sits on restaurants' own, usually light, sites).
+- Checked in a desktop browser at phone and desktop size on the local preview: opening, dragging (followed 1:1, resisted when pulled up, settled back, closed past a third), a group form, the allergy reply, sending a form, reload, Escape. 37 tests pass. **Not checked: a real phone and a real finger.** The drag was driven by a mouse and by test messages. Albie should try the preview on his own phone before merging.
+
 ### Stage 1, go live: finished 12 November
 
 All four checks pass on the live site: health check, the five demo questions, a test enquiry reaching Albie's email (his word; Claude did not see the email), and the chat button on the stand-in page. Two lessons worth keeping:
@@ -43,7 +53,7 @@ All four checks pass on the live site: health check, the five demo questions, a 
 
 ## Waiting on Albie
 
-1. Nothing on the website assistant. It is ready to demo.
+1. Try the design pull request's preview on his own phone (open, drag down, flick, ask a question, send a form), then merge or ask for changes.
 2. Decide whether the GitHub repository should stay public.
 3. Twilio: open an account, upgrade it to paid, and submit the UK number registration (Phone Numbers, Regulatory Compliance, Bundles: United Kingdom, Mobile, Individual, with ID and proof of address). Not started as of 12 November. Stage 3 can't start without it.
 4. The decisions listed in `docs/PLAN.md`.
@@ -76,6 +86,7 @@ The Console menu names in steps 3 and 4 were written from memory and not checked
 
 Add a dated entry at the top for each session: what changed, what was tested, what is waiting.
 
+- **13 Nov 2026.** Installed the design skills at Albie's request. Design pass built on `design/world-class` and opened as a pull request. Checked in a desktop browser only; 37 tests pass.
 - **12 Nov 2026, 7:40pm.** Albie's own stress-test run passed 48 of 48 and he merged pull request 3. Live site checked: health check "All working", and the misspelt allergy, swelling lips and pirate questions all behave correctly. Stage 2 done.
 - **12 Nov 2026, 7:30pm.** Albie renamed the Netlify project to `kettleandco`, switched off the badge and deleted the old project. Built the stress-test page, ran it on the preview (45 of 48), fixed the one real failure and hardened the allergy checks with tests, ran it again (48 of 48). Pull request 3 open, not merged.
 - **12 Nov 2026, later still.** Albie set the email notification and confirmed a test enquiry arrived. All four Stage 1 checks now pass.
