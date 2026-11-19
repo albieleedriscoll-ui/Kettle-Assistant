@@ -15,6 +15,10 @@
   --bg:#F4F5F3; --surface:#FFFFFF; --fg:#17201C; --muted:#5A6761; --line:#E0E5E2;
   --amber:#7F5300; --amber-soft:#FBEBC8; --red:#9E3219; --red-soft:#F9E1DA;
   --font:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  /* Motion. Things that enter or leave start fast and settle (ease-out). The sheet curve is the iOS drawer one. */
+  --ease-out:cubic-bezier(.23,1,.32,1); --ease-sheet:cubic-bezier(.32,.72,0,1);
+  --glass:rgba(255,255,255,.78);
+  color-scheme:light;
 }
 @supports (color:color-mix(in srgb,red,white)){
   :root{--accent-soft:color-mix(in srgb,var(--accent) 9%,white);--accent-line:color-mix(in srgb,var(--accent) 30%,white)}
@@ -22,82 +26,105 @@
 *{box-sizing:border-box}
 [hidden]{display:none!important}
 html,body{height:100%}
-body{margin:0;background:var(--bg);color:var(--fg);font:15.5px/1.5 var(--font);-webkit-text-size-adjust:100%;
+body{margin:0;background:var(--bg);color:var(--fg);font:.97rem/1.5 var(--font);-webkit-text-size-adjust:100%;
   -webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent}
 svg{display:block}
+button,.btn{touch-action:manipulation;-webkit-user-select:none;user-select:none}
 
 /* ---------- frame ---------- */
 .page{min-height:100%;height:100dvh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;
   padding:28px 20px;background:linear-gradient(180deg,var(--accent-soft),var(--bg) 340px)}
 .chat{width:100%;max-width:440px;flex:1 1 auto;min-height:0;max-height:780px;background:var(--surface);
-  border:1px solid var(--line);border-radius:24px;display:flex;flex-direction:column;overflow:hidden;
+  border:1px solid var(--line);border-radius:24px;display:flex;flex-direction:column;overflow:hidden;position:relative;
   box-shadow:0 1px 2px rgba(23,32,28,.05),0 20px 50px -12px rgba(23,32,28,.18)}
-.foot{margin:0;font-size:12.5px;color:var(--muted);text-align:center}
+.foot{margin:0;font-size:.7813rem;color:var(--muted);text-align:center}
 
 /* ---------- header ---------- */
-.chat-head{display:flex;align-items:center;gap:12px;padding:14px 16px;border-bottom:1px solid var(--line);flex:none}
+.top{position:absolute;top:0;left:0;right:0;z-index:3}
+.chat-head{display:flex;align-items:center;gap:12px;padding:14px 16px;background:var(--surface);position:relative}
+@supports ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){
+  .chat-head{background:var(--glass);-webkit-backdrop-filter:blur(18px) saturate(180%);backdrop-filter:blur(18px) saturate(180%)}
+}
+/* The dividing line only shows once something has scrolled underneath. */
+.top::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:1px;background:var(--line);opacity:0;transition:opacity .2s ease}
+.top.scrolled::after{opacity:1}
+.grab{position:absolute;top:6px;left:50%;width:36px;height:5px;margin-left:-18px;border-radius:3px;background:var(--line);z-index:1}
+body.sheet .top{touch-action:none;cursor:grab}
+body.sheet .chat-head{padding-top:20px}
 .avatar{width:42px;height:42px;border-radius:50%;background:var(--accent);color:var(--accent-fg);display:grid;
-  place-items:center;font-weight:700;font-size:15px;flex:none;letter-spacing:.03em}
+  place-items:center;font-weight:700;font-size:.9375rem;flex:none;letter-spacing:.03em}
 .who{min-width:0;flex:1}
-.who b{display:block;font-size:16px;font-weight:650;line-height:1.3;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.who small{display:block;color:var(--muted);font-size:13px;line-height:1.35;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.who b{display:block;font-size:1rem;font-weight:650;line-height:1.3;letter-spacing:-.01em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.who small{display:block;color:var(--muted);font-size:.8125rem;line-height:1.35;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .close{width:40px;height:40px;border-radius:50%;border:0;background:transparent;color:var(--muted);cursor:pointer;flex:none;
   display:grid;place-items:center;margin-right:-6px}
-.close:hover{background:var(--bg);color:var(--fg)}
+@media (hover:hover){.close:hover{background:var(--bg);color:var(--fg)}}
+.close:active{background:var(--line);color:var(--fg)}
 .close svg{width:20px;height:20px}
-.demo{margin:0;padding:7px 16px;font-size:12.5px;line-height:1.4;color:var(--amber);background:var(--amber-soft);flex:none}
+.demo{margin:0;padding:7px 16px;font-size:.7813rem;line-height:1.4;color:var(--amber);background:var(--amber-soft);flex:none}
 
 /* ---------- conversation ---------- */
-.log{flex:1;min-height:0;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px;background:var(--bg);
+.log{flex:1;min-height:0;overflow-y:auto;padding:16px;padding-top:calc(var(--top-h,72px) + 16px);display:flex;flex-direction:column;gap:10px;background:var(--bg);
   overscroll-behavior:contain;scroll-behavior:smooth}
-.msg{max-width:86%;padding:10px 14px;border-radius:18px;white-space:pre-line;overflow-wrap:anywhere;animation:rise .2s ease-out both}
-.msg.bot{align-self:flex-start;background:var(--surface);border:1px solid var(--line);border-bottom-left-radius:6px;
+.msg{max-width:86%;padding:10px 14px;border-radius:18px;white-space:pre-line;overflow-wrap:anywhere;animation:rise .32s var(--ease-out) both}
+.msg.bot{transform-origin:0 100%;align-self:flex-start;background:var(--surface);border:1px solid var(--line);border-bottom-left-radius:6px;
   box-shadow:0 1px 1px rgba(23,32,28,.03)}
-.msg.guest{align-self:flex-end;background:var(--accent);color:var(--accent-fg);border-bottom-right-radius:6px}
-.msg.note{align-self:center;background:var(--accent-soft);color:var(--fg);font-size:13.5px;text-align:center;max-width:94%;
+.msg.guest{transform-origin:100% 100%;align-self:flex-end;background:var(--accent);color:var(--accent-fg);border-bottom-right-radius:6px}
+.msg.note{align-self:center;background:var(--accent-soft);color:var(--fg);font-size:.8438rem;text-align:center;max-width:94%;
   white-space:normal;border-radius:12px;padding:9px 13px}
 .msg.wide{max-width:100%;align-self:stretch}
 .msg .t a{color:var(--accent);font-weight:600;text-decoration:underline;text-underline-offset:2px;white-space:nowrap}
 .msg .actions,.msg form{white-space:normal}
-@keyframes rise{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@keyframes rise{from{opacity:0;transform:translateY(8px) scale(.97)}to{opacity:1;transform:none}}
+/* The typing bubble becomes the answer: the words fade in where the dots were. */
+.msg .t.in{animation:words .26s ease both}
+@keyframes words{from{opacity:0;filter:blur(2px)}to{opacity:1;filter:none}}
+/* A conversation that is being put back on screen after a reload doesn't replay its entrances. */
+.log.still .msg,.log.still .quick,.log.still .chip{animation:none}
+@keyframes fade{from{opacity:0}to{opacity:1}}
 
-.quick{align-self:stretch;margin-top:6px;animation:rise .2s ease-out .08s both}
-.quick p{margin:0 0 8px 2px;font-size:12.5px;font-weight:600;color:var(--muted)}
+.quick{align-self:stretch;margin-top:6px;animation:fade .3s ease .1s both}
+.quick p{margin:0 0 8px 2px;font-size:.7813rem;font-weight:600;color:var(--muted)}
 .chips{display:flex;flex-wrap:wrap;gap:8px}
-.chip{font:inherit;font-size:14.5px;font-weight:550;line-height:1.3;min-height:40px;padding:8px 14px;border-radius:999px;
+.chip{font:inherit;font-size:.9063rem;font-weight:550;line-height:1.3;min-height:40px;padding:8px 14px;border-radius:999px;
   border:1px solid var(--accent-line);background:var(--surface);color:var(--accent);cursor:pointer;text-align:left;
-  transition:background .12s ease,border-color .12s ease}
-.chip:hover{background:var(--accent-soft);border-color:var(--accent)}
+  transition:background .12s ease,border-color .12s ease,transform .14s var(--ease-out);
+  animation:rise .32s var(--ease-out) both}
+@media (hover:hover){.chip:hover{background:var(--accent-soft);border-color:var(--accent)}}
+.chip:active{background:var(--accent-soft);border-color:var(--accent);transform:scale(.97)}
 
 /* ---------- buttons ---------- */
 .actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
-.btn{font:inherit;font-size:14.5px;font-weight:600;line-height:1.2;min-height:40px;border-radius:999px;padding:9px 16px;cursor:pointer;
+.btn{font:inherit;font-size:.9063rem;font-weight:600;line-height:1.2;min-height:40px;border-radius:999px;padding:9px 16px;cursor:pointer;
   border:1px solid var(--accent);background:var(--accent);color:var(--accent-fg);text-decoration:none;
-  display:inline-flex;align-items:center;justify-content:center;gap:7px;transition:filter .12s ease,background .12s ease}
-.btn:hover{filter:brightness(1.08)}
+  display:inline-flex;align-items:center;justify-content:center;gap:7px;transition:filter .12s ease,background .12s ease,transform .14s var(--ease-out)}
+@media (hover:hover){.btn:hover{filter:brightness(1.08)}}
+.btn:active:not(:disabled){transform:scale(.97);filter:brightness(.94)}
 .btn svg{width:15px;height:15px;flex:none}
 .btn.ghost{background:transparent;color:var(--accent);border-color:var(--accent-line)}
-.btn.ghost:hover{background:var(--accent-soft);filter:none}
+@media (hover:hover){.btn.ghost:hover{background:var(--accent-soft);filter:none}}
+.btn.ghost:active:not(:disabled){background:var(--accent-soft);filter:none}
 .btn.block{width:100%}
 .btn:disabled{opacity:.5;cursor:default;filter:none}
 .btn:focus-visible,.chip:focus-visible,.field:focus-visible,#ask:focus-visible,.close:focus-visible,.send:focus-visible,.msg .t a:focus-visible{
   outline:2px solid var(--accent);outline-offset:2px}
 
 /* ---------- passing something to the team ---------- */
-.pill{display:flex;width:fit-content;align-items:center;gap:6px;font-size:12.5px;font-weight:650;padding:3px 10px;border-radius:999px;
+.pill{display:flex;width:fit-content;align-items:center;gap:6px;font-size:.7813rem;font-weight:650;padding:3px 10px;border-radius:999px;
   background:var(--amber-soft);color:var(--amber);margin-top:12px}
 .pill::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor}
 .pill.urgent{background:var(--red-soft);color:var(--red)}
 form.handoff{display:grid;gap:10px;margin-top:10px}
-form.handoff label{display:grid;gap:4px;font-size:13px;font-weight:550;color:var(--muted)}
-.field,#ask{font:inherit;font-size:16px;color:var(--fg);background:var(--bg);border:1px solid var(--line);
-  border-radius:12px;padding:10px 12px;width:100%;min-width:0;min-height:44px}
+form.handoff label{display:grid;gap:4px;font-size:.8125rem;font-weight:550;color:var(--muted)}
+.field,#ask{font:inherit;font-size:1rem;color:var(--fg);background:var(--bg);border:1px solid var(--line);
+  border-radius:12px;padding:10px 12px;width:100%;min-width:0;min-height:44px;
+  transition:background .15s ease,border-color .15s ease,box-shadow .15s ease}
 .field::placeholder,#ask::placeholder{color:#8A9690}
-.field:focus,#ask:focus{background:var(--surface);border-color:var(--accent-line)}
+.field:focus,#ask:focus{background:var(--surface);border-color:var(--accent-line);box-shadow:0 0 0 3px var(--accent-soft)}
 form.handoff .actions{margin-top:2px}
 form.handoff.sent .field{opacity:.6}
-.err{margin:0;color:var(--red);font-size:13.5px}
-.small{margin:0;font-size:12.5px;line-height:1.4;color:var(--muted)}
+.err{margin:0;color:var(--red);font-size:.8438rem}
+.small{margin:0;font-size:.7813rem;line-height:1.4;color:var(--muted)}
 
 /* ---------- typing dots ---------- */
 .typing{display:flex;gap:5px;align-items:center;min-height:23px;padding:0 2px}
@@ -106,14 +133,15 @@ form.handoff.sent .field{opacity:.6}
 @keyframes blink{0%,80%,100%{opacity:.25}40%{opacity:1}}
 
 /* ---------- question box ---------- */
-.composer{display:flex;align-items:center;gap:8px;padding:12px 12px 8px 14px;border-top:1px solid var(--line);flex:none}
+.composer{display:flex;align-items:center;gap:8px;padding:12px 12px 8px 14px;border-top:1px solid var(--line);flex:none;background:var(--surface)}
 #ask{border-radius:999px;padding:10px 16px}
 .send{width:44px;height:44px;border-radius:50%;border:0;background:var(--accent);color:var(--accent-fg);cursor:pointer;flex:none;
-  display:grid;place-items:center;transition:filter .12s ease,opacity .12s ease}
-.send:hover{filter:brightness(1.08)}
-.send:disabled{opacity:.4;cursor:default;filter:none}
+  display:grid;place-items:center;transition:filter .12s ease,opacity .18s ease,transform .18s var(--ease-out)}
+@media (hover:hover){.send:hover{filter:brightness(1.08)}}
+.send:active:not(:disabled){transform:scale(.92);filter:brightness(.94)}
+.send:disabled{opacity:.35;transform:scale(.9);cursor:default;filter:none}
 .send svg{width:20px;height:20px}
-.fine{margin:0;padding:0 18px max(12px,env(safe-area-inset-bottom));font-size:12px;line-height:1.4;color:var(--muted);text-align:center;flex:none}
+.fine{margin:0;padding:0 18px max(12px,env(safe-area-inset-bottom));font-size:.75rem;line-height:1.4;color:var(--muted);text-align:center;flex:none}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 
 /* ---------- phones: the chat fills the screen ---------- */
@@ -122,20 +150,31 @@ form.handoff.sent .field{opacity:.6}
   .chat{max-width:none;max-height:none;border:0;border-radius:0;box-shadow:none}
   .chat-head{padding-top:max(14px,env(safe-area-inset-top))}
   .fine{padding-bottom:8px}
-  .foot{padding:0 16px max(10px,env(safe-area-inset-bottom));font-size:12px}
+  .foot{padding:0 16px max(10px,env(safe-area-inset-bottom));font-size:.75rem}
 }
 /* ---------- inside the pop-up on a restaurant's own site ---------- */
 body.embed .page{padding:0;gap:0;background:var(--surface)}
 body.embed .chat{max-width:none;max-height:none;border:0;border-radius:0;box-shadow:none}
 body.embed .chat-head{padding-top:14px}
+body.embed.sheet .chat-head{padding-top:20px}
 body.embed .fine{padding-bottom:max(12px,env(safe-area-inset-bottom))}
 body.embed .foot{display:none}
-@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+@media (prefers-reduced-motion:reduce){
+  .msg,.quick,.chip{animation:fade .2s ease both}
+  .msg .t.in{animation:fade .2s ease both}
+  .btn,.chip,.send{transition:opacity .15s ease}
+  .btn:active:not(:disabled),.chip:active,.send:active:not(:disabled),.send:disabled{transform:none}
+  .log{scroll-behavior:auto}
+}
+@media (prefers-contrast:more){:root{--line:#8A9690;--muted:#3D4843;--accent-line:var(--accent);--glass:#fff}.top::after{opacity:1}}
+@media (prefers-reduced-transparency:reduce){.chat-head{background:var(--surface);-webkit-backdrop-filter:none;backdrop-filter:none}}
 </style>
 </head>
 <body>
 <div class="page">
   <main class="chat" aria-label="Chat">
+    <div class="top" id="top">
+    <div class="grab" id="grab" aria-hidden="true" hidden></div>
     <header class="chat-head">
       <div class="avatar" id="avatar" aria-hidden="true"></div>
       <div class="who"><b id="bizName">Loading…</b><small id="bizLabel"></small></div>
@@ -144,6 +183,7 @@ body.embed .foot{display:none}
       </button>
     </header>
     <p class="demo" id="demo" hidden></p>
+    </div>
     <div class="log" id="log" role="log" aria-live="polite"></div>
     <form class="composer" id="composer">
       <label class="sr" for="ask">Your question</label>
@@ -165,10 +205,12 @@ body.embed .foot{display:none}
 var qs = new URLSearchParams(location.search);
 var venueId = (qs.get("venue") || "copper-kettle").toLowerCase().replace(/[^a-z0-9-]/g, "");
 var embed = qs.get("embed") === "1";
+var sheet = embed && qs.get("sheet") === "1"; // on a phone the pop-up is a sheet that can be dragged down to close
 if (embed) document.body.classList.add("embed");
+if (sheet) document.body.classList.add("sheet");
 
 var $ = function (id) { return document.getElementById(id); };
-var logEl = $("log"), askEl = $("ask"), sendBtn = $("sendBtn");
+var logEl = $("log"), askEl = $("ask"), sendBtn = $("sendBtn"), topEl = $("top");
 var cfg = null, turns = [], busy = false, formCount = 0, quickEl = null;
 var STORE = "kc-chat-" + venueId;
 
@@ -188,10 +230,16 @@ function el(tag, cls, text) {
 }
 function scrollEnd() { logEl.scrollTop = logEl.scrollHeight; }
 // Shows the start of a new answer. A long one, with a form in it, would otherwise open scrolled to its end.
+// The header floats over the top of the conversation, so its height is left clear.
 function reveal(m) {
-  if (m.offsetHeight <= logEl.clientHeight - 24) return scrollEnd();
-  logEl.scrollTop += m.getBoundingClientRect().top - logEl.getBoundingClientRect().top - 12;
+  var top = topEl.offsetHeight;
+  if (m.offsetHeight <= logEl.clientHeight - top - 24) return scrollEnd();
+  logEl.scrollTop += m.getBoundingClientRect().top - logEl.getBoundingClientRect().top - top - 12;
 }
+function fitTop() { logEl.style.setProperty("--top-h", topEl.offsetHeight + "px"); }
+if (window.ResizeObserver) new ResizeObserver(fitTop).observe(topEl);
+window.addEventListener("resize", fitTop);
+logEl.addEventListener("scroll", function () { topEl.classList.toggle("scrolled", logEl.scrollTop > 2); }, { passive: true });
 
 // Writes text into a bubble. In the assistant's bubbles the restaurant's phone number becomes a tap-to-call link.
 function fill(node, text, linkPhone) {
@@ -206,11 +254,14 @@ function fill(node, text, linkPhone) {
     if (part) node.append(document.createTextNode(part));
   });
 }
-function addMsg(role, text) {
-  var m = el("div", "msg " + role), t = el("span", "t");
+// Adds a bubble. Given the typing bubble as "into", the words replace the dots in the same bubble.
+function addMsg(role, text, into) {
+  var m = into || el("div", "msg " + role), t = el("span", "t" + (into ? " in" : ""));
+  t.dir = "auto";
   fill(t, text, role === "bot");
+  if (into) m.textContent = "";
   m.append(t);
-  logEl.append(m);
+  if (!into) logEl.append(m);
   scrollEnd();
   return m;
 }
@@ -227,10 +278,13 @@ function remember(role, content) {
   turns.push({ role: role, content: content });
   try { sessionStorage.setItem(STORE, JSON.stringify(turns.slice(-30))); } catch (e) {}
 }
+// The send button wakes up only when there is something to send.
+function sync() { sendBtn.disabled = busy || !cfg || !askEl.value.trim(); }
 function setBusy(on) {
   busy = on;
-  sendBtn.disabled = on || !cfg;
+  sync();
 }
+askEl.addEventListener("input", sync);
 
 /* ---------- booking button ---------- */
 function bookingControl() {
@@ -347,8 +401,8 @@ function addForm(host, handoff, question) {
 }
 
 /* ---------- showing an answer ---------- */
-function renderBot(r, question) {
-  var m = addMsg("bot", r.reply);
+function renderBot(r, question, into) {
+  var m = addMsg("bot", r.reply, into);
   remember("assistant", r.reply);
   var acts = [];
   if (r.link) acts.push(bookingControl());
@@ -390,12 +444,10 @@ function send(text) {
     if (!res.ok) throw new Error("status " + res.status);
     return res.json();
   }).then(function (r) {
-    typing.remove();
     if (!r || typeof r.reply !== "string") throw new Error("empty");
-    renderBot(r, text);
+    renderBot(r, text, typing);
   }).catch(function () {
-    typing.remove();
-    addMsg("bot", "Sorry, I couldn't connect just then. Please try again, or call " + cfg.phone + ".");
+    addMsg("bot", "Sorry, I couldn't connect just then. Please try again, or call " + cfg.phone + ".", typing);
   }).then(function () {
     setBusy(false);
     if (!embed || window.matchMedia("(min-width: 600px)").matches) askEl.focus();
@@ -404,8 +456,10 @@ function send(text) {
 
 /* ---------- start ---------- */
 function initials(name) {
-  var words = name.replace(/^the\s+/i, "").split(/\s+/).filter(function (w) { return /[a-z0-9]/i.test(w); });
-  return ((words[0] || "?").charAt(0) + (words[1] ? words[1].charAt(0) : "")).toUpperCase();
+  // Array.from keeps accented letters and other scripts whole. Words with no letters or digits are skipped.
+  var words = name.trim().replace(/^the\s+/i, "").split(/\s+/).filter(function (w) { return /[\p{L}\p{N}]/u.test(w); });
+  var first = function (w) { return w ? Array.from(w.replace(/^[^\p{L}\p{N}]+/u, ""))[0] || "" : ""; };
+  return (first(words[0]) + first(words[1])).toUpperCase() || "?";
 }
 
 function addSuggestions(list) {
@@ -414,9 +468,10 @@ function addSuggestions(list) {
   quickEl.setAttribute("aria-label", "Suggested questions");
   quickEl.append(el("p", null, "People often ask"));
   var chips = el("div", "chips");
-  list.forEach(function (q) {
+  list.forEach(function (q, n) {
     var chip = el("button", "chip", q);
     chip.type = "button";
+    chip.style.animationDelay = (140 + n * 45) + "ms"; // they arrive one after another, just after the greeting
     chip.addEventListener("click", function () { send(q); });
     chips.append(chip);
   });
@@ -442,6 +497,8 @@ function start(c) {
   try { saved = JSON.parse(sessionStorage.getItem(STORE) || "[]"); } catch (e) {}
   addMsg("bot", cfg.greeting);
   if (Array.isArray(saved) && saved.length) {
+    logEl.classList.add("still");
+    setTimeout(function () { logEl.classList.remove("still"); }, 400);
     saved.forEach(function (t) {
       if (!t || typeof t.content !== "string") return;
       addMsg(t.role === "user" ? "guest" : "bot", t.content);
@@ -452,12 +509,14 @@ function start(c) {
   }
   askEl.disabled = false;
   setBusy(false);
+  fitTop();
 }
 
 $("composer").addEventListener("submit", function (e) {
   e.preventDefault();
   var v = askEl.value;
   askEl.value = "";
+  sync();
   send(v);
 });
 
@@ -466,6 +525,44 @@ if (embed && window.parent !== window) {
   $("closeBtn").addEventListener("click", function () {
     window.parent.postMessage({ type: "kc-close" }, "*");
   });
+}
+
+/* ---------- dragging the sheet down to close (phones, inside the pop-up) ----------
+   This page only reports how far the finger has moved. widget.js, on the restaurant's page, moves the sheet.
+   Screen positions are used because the sheet itself moves under the finger. */
+if (sheet && window.parent !== window && window.PointerEvent) {
+  $("grab").hidden = false;
+  var drag = null;
+  var tell = function (type, extra) {
+    var msg = { type: type };
+    for (var k in extra) msg[k] = extra[k];
+    window.parent.postMessage(msg, "*");
+  };
+  topEl.addEventListener("pointerdown", function (e) {
+    if (drag || (e.target.closest && e.target.closest(".close"))) return; // one finger at a time
+    drag = { id: e.pointerId, y0: e.screenY, moved: false, trail: [[e.screenY, e.timeStamp]] };
+    try { topEl.setPointerCapture(e.pointerId); } catch (err) {}
+  });
+  topEl.addEventListener("pointermove", function (e) {
+    if (!drag || e.pointerId !== drag.id) return;
+    var dy = e.screenY - drag.y0;
+    if (!drag.moved && Math.abs(dy) < 8) return; // a tap that wobbles isn't a drag
+    drag.moved = true;
+    drag.trail.push([e.screenY, e.timeStamp]);
+    if (drag.trail.length > 6) drag.trail.shift();
+    tell("kc-drag", { dy: dy });
+  });
+  var end = function (e) {
+    if (!drag || e.pointerId !== drag.id) return;
+    var d = drag;
+    drag = null;
+    if (!d.moved) return;
+    // Speed over the last few moments, in pixels per millisecond. A quick flick closes it, however short.
+    var a = d.trail[0], b = d.trail[d.trail.length - 1], dt = b[1] - a[1];
+    tell("kc-drag-end", { dy: e.screenY - d.y0, v: dt > 0 ? (b[0] - a[0]) / dt : 0 });
+  };
+  topEl.addEventListener("pointerup", end);
+  topEl.addEventListener("pointercancel", end);
 }
 
 fetch("/venues/" + encodeURIComponent(venueId) + ".json").then(function (res) {

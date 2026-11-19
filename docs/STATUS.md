@@ -2,13 +2,25 @@
 
 Last updated: 12 November 2026, by a Claude Code session running on Albie's Mac (not a cloud session).
 
-## Current stage: 2, stress test. Built and passing once on the preview. Waiting for Albie's second run and the merge.
+## Current stage: 3, the phone test. Waiting on Albie's Twilio number. Stages 1 and 2 were finished on 12 November 2026.
+
+- This file is ahead of `main`: it is on the branch `next/stage-3`, with no pull request, so the update cost no credits. Put the next piece of work on that branch and merge them together.
 
 - **Live address: https://kettleandco.netlify.app** (Albie renamed the Netlify project from `lucent-taiyaki-cc7d40` on 12 November; the old address no longer works). `/api/check` says "All working". The Netlify badge is off.
 - Netlify project: `kettleandco`, linked to the GitHub repository, public, with Albie's own `ANTHROPIC_API_KEY`, form detection on and an email notification set. The old hand-uploaded project `deluxe-creponne-e1f060` is gone.
 - Preview links are public and free: `https://deploy-preview-<number>--kettleandco.netlify.app`. Test there before every merge. A merge costs 15 credits.
 - GitHub repository: https://github.com/albieleedriscoll-ui/Kettle-Assistant (public; no keys in it; `docs/PLAN.md` with the prices is readable by anyone).
 - Restaurants live: none (only the demo, `copper-kettle`).
+
+### Design pass, 13 November: pull request open, not merged
+
+Albie installed Emil Kowalski's design skills (`~/.claude/skills`, 19 of them, text only) and asked for a "world class" interface. Branch `design/world-class`. It builds on edits another Claude session left uncommitted in the same three files that morning. Looks and feel only: `lib/guard.mjs`, `lib/prompt.mjs` and the fixed replies are untouched, and there are still no dependencies (so no animation library; the motion is hand-built CSS and a little script).
+
+- Chat page: messages rise from their own corner, suggested questions arrive one after another, the typing bubble becomes the answer, the send button wakes when there is text, a frosted header the conversation scrolls under, text sizes follow the reader's own setting, right-to-left text and unusual names handled.
+- On a phone the pop-up is a sheet: it slides up over a dimmed page and can be dragged down or flicked to close. `public/index.html` reports the finger's movement to `public/widget.js` with `kc-drag` and `kc-drag-end` messages.
+- The chat button changes into a close button. Closing with Escape is instant. People who have turned motion down get short fades and nothing moves.
+- Deliberately not done: dark mode (the chat sits on restaurants' own, usually light, sites).
+- Checked in a desktop browser at phone and desktop size on the local preview: opening, dragging (followed 1:1, resisted when pulled up, settled back, closed past a third), a group form, the allergy reply, sending a form, reload, Escape. 37 tests pass. **Not checked: a real phone and a real finger.** The drag was driven by a mouse and by test messages. Albie should try the preview on his own phone before merging.
 
 ### Stage 1, go live: finished 12 November
 
@@ -18,7 +30,7 @@ All four checks pass on the live site: health check, the five demo questions, a 
 - **Netlify's AI Gateway puts its own `ANTHROPIC_API_KEY` and `ANTHROPIC_BASE_URL` into the site when the project has none.** That value is not a Claude key and Claude rejects it. The health check now says what the saved value looks like (length, and whether it starts with `sk-ant-`) without showing it. Using the gateway on purpose would be billed in Netlify credits, so don't without asking Albie.
 - New Netlify projects start private. Project configuration, General, Visitor access, Project visibility.
 
-### Stage 2, stress test: pull request 3, open, not merged
+### Stage 2, stress test: finished 12 November (pull request 3, merged)
 
 - `public/stress.html?venue=<id>` asks the real assistant 48 awkward questions, about three seconds apart, and marks each with fixed rules. "Copy results" gives the failures as text. A full run takes about four minutes.
 - First run on the preview: 45 of 48. Two fails were the page's own rules misreading good answers ("I can't tell you whether your table is booked"). One was real: asked for pirate speak, it began "Arr ... matey".
@@ -26,7 +38,7 @@ All four checks pass on the live site: health check, the five demo questions, a 
   - `lib/prompt.mjs`: a guest can't make it play a character, use a style, or write poems and jokes.
   - `lib/guard.mjs`: misspellings ("alergy", "alergic", "intolerent") and a reaction described without the word (swelling lips, tongue, face or mouth) now get the fixed replies before Claude is asked. Claude had handled these correctly in the run, but rule 4 says not to depend on that.
   - The page's rules now ignore statements that are denied or questioned.
-- Second run on the preview, after the fixes: **48 of 48**. That is one clean run. The plan asks for two in a row, so Albie runs it once more.
+- Second run on the preview, after the fixes: **48 of 48**. Albie then ran it himself and also got 48 of 48, so that is two clean runs in a row. After the merge, the three questions behind the fixes were asked on the live site and all behaved correctly. Re-run the page before each new restaurant goes live: https://kettleandco.netlify.app/stress.html?venue=<id>
 - Not covered by the page: the enquiry email, a real phone, and whether the questions are the right ones for a real restaurant. Albie should add questions an owner actually worries about.
 - 37 unit tests pass (three of them extended).
 
@@ -41,7 +53,7 @@ All four checks pass on the live site: health check, the five demo questions, a 
 
 ## Waiting on Albie
 
-1. Run the stress test himself on the preview (https://deploy-preview-3--kettleandco.netlify.app/stress.html?venue=copper-kettle). If it says 48 of 48, merge pull request 3. If not, click "Copy results" and paste them to Claude.
+1. Try the design pull request's preview on his own phone (open, drag down, flick, ask a question, send a form), then merge or ask for changes.
 2. Decide whether the GitHub repository should stay public.
 3. Twilio: open an account, upgrade it to paid, and submit the UK number registration (Phone Numbers, Regulatory Compliance, Bundles: United Kingdom, Mobile, Individual, with ID and proof of address). Not started as of 12 November. Stage 3 can't start without it.
 4. The decisions listed in `docs/PLAN.md`.
@@ -74,6 +86,8 @@ The Console menu names in steps 3 and 4 were written from memory and not checked
 
 Add a dated entry at the top for each session: what changed, what was tested, what is waiting.
 
+- **13 Nov 2026.** Installed the design skills at Albie's request. Design pass built on `design/world-class` and opened as a pull request. Checked in a desktop browser only; 37 tests pass.
+- **12 Nov 2026, 7:40pm.** Albie's own stress-test run passed 48 of 48 and he merged pull request 3. Live site checked: health check "All working", and the misspelt allergy, swelling lips and pirate questions all behave correctly. Stage 2 done.
 - **12 Nov 2026, 7:30pm.** Albie renamed the Netlify project to `kettleandco`, switched off the badge and deleted the old project. Built the stress-test page, ran it on the preview (45 of 48), fixed the one real failure and hardened the allergy checks with tests, ran it again (48 of 48). Pull request 3 open, not merged.
 - **12 Nov 2026, later still.** Albie set the email notification and confirmed a test enquiry arrived. All four Stage 1 checks now pass.
 - **12 Nov 2026, 7:05pm.** Albie merged pull request 2. Live address checked: health check "All working", one real answer correct, enquiry form detected by Netlify, badge still showing. Not tested: the enquiry email, a real phone.
